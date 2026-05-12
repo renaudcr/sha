@@ -1,0 +1,11 @@
+/* Base reset – full styling is handled by App.css */
+body {
+  margin: 0;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
