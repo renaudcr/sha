@@ -80,7 +80,7 @@ export default function App() {
             <FeaturesTab config={config} onChange={handleConfigChange} />
           )}
           {tab === "contact" && (
-            <ContactTab onSubmit={submitContact} onBack={goPrev} />
+            <ContactTab onSubmit={(data) => submitContact(data as unknown as Record<string, string>)} onBack={goPrev} />
           )}
         </div>
 
