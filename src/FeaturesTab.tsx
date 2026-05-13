@@ -114,8 +114,9 @@ export default function FeaturesTab({ config, onChange }: Props) {
 
         <Field label="Type de trémie">
           <Sel value={config.openingType} onChange={sel("openingType")}>
-            <option value={0}>Carré</option>
-            <option value={1}>Rond</option>
+            <option value={0}>Carrée</option>
+            <option value={1}>Ronde</option>
+            <option value={2}>Mezzanine</option>
           </Sel>
         </Field>
 
@@ -128,7 +129,7 @@ export default function FeaturesTab({ config, onChange }: Props) {
 
         <Field label="Dessus de marches">
           <Sel value={config.treadTop} onChange={sel("treadTop")}>
-            <option value={0}>Plein</option>
+            <option value={0}>Pleine</option>
             <option value={1}>Bois – chêne brut</option>
             <option value={2}>Bois – chêne vitrifié</option>
             <option value={3}>Bois – teck brut</option>
@@ -160,6 +161,7 @@ export default function FeaturesTab({ config, onChange }: Props) {
           <Sel value={config.floorRailing} onChange={sel("floorRailing")}>
             <option value={0}>Marche palière</option>
             <option value={1}>Tour de trémie</option>
+            <option value={2}>Balustrade</option>
           </Sel>
         </Field>
 
@@ -193,21 +195,25 @@ export default function FeaturesTab({ config, onChange }: Props) {
           </Sel>
         </Field>
 
-        <Field label="Boule au départ">
-          <Sel value={config.startBall} onChange={sel("startBall")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Acier</option>
-            <option value={2}>Verre</option>
-          </Sel>
-        </Field>
+        {config.startPost === 1 && (
+          <Field label="Boule au départ">
+            <Sel value={config.startBall} onChange={sel("startBall")}>
+              <option value={0}>Sans</option>
+              <option value={1}>Acier</option>
+              <option value={2}>Verre</option>
+            </Sel>
+          </Field>
+        )}
 
-        <Field label="Boule à l'arrivée">
-          <Sel value={config.endBall} onChange={sel("endBall")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Acier</option>
-            <option value={2}>Verre</option>
-          </Sel>
-        </Field>
+        {config.endPost === 1 && (
+          <Field label="Boule à l'arrivée">
+            <Sel value={config.endBall} onChange={sel("endBall")}>
+              <option value={0}>Sans</option>
+              <option value={1}>Acier</option>
+              <option value={2}>Verre</option>
+            </Sel>
+          </Field>
+        )}
 
         {/* Full-width: balusters */}
         <div className="field field--full">
