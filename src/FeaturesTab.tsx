@@ -116,7 +116,6 @@ export default function FeaturesTab({ config, onChange }: Props) {
           <Sel value={config.openingType} onChange={sel("openingType")}>
             <option value={0}>Carrée</option>
             <option value={1}>Ronde</option>
-            <option value={2}>Mezzanine</option>
           </Sel>
         </Field>
 
@@ -161,7 +160,6 @@ export default function FeaturesTab({ config, onChange }: Props) {
           <Sel value={config.floorRailing} onChange={sel("floorRailing")}>
             <option value={0}>Marche palière</option>
             <option value={1}>Tour de trémie</option>
-            <option value={2}>Balustrade</option>
           </Sel>
         </Field>
 
