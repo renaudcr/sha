@@ -10,7 +10,7 @@ const TABS: Tab[] = ["features", "contact"];
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { ready, error, updateParam, submitContact } = useShapeDiver(canvasRef);
+  const { ready, error, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot } = useShapeDiver(canvasRef);
   const [tab, setTab] = useState<Tab>("features");
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
 
@@ -42,6 +42,15 @@ export default function App() {
       {/* 3D Viewer */}
       <div className="viewer-wrapper">
         <canvas ref={canvasRef} className="viewer-canvas" />
+        {ready && (
+          <div className="viewer-toolbar">
+            <button onClick={zoomIn} title="Zoom +">🔍+</button>
+            <button onClick={zoomOut} title="Zoom −">🔍−</button>
+            <button onClick={resetCamera} title="Réinitialiser la vue">↺</button>
+            <button onClick={toggleFullscreen} title="Plein écran">⛶</button>
+            <button onClick={getScreenshot} title="Capture d'écran">📷</button>
+          </div>
+        )}
         {!ready && !error && (
           <div className="viewer-overlay">
             <span className="loader-text">Loading 3D model...</span>

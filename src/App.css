@@ -52,6 +52,37 @@ body {
   opacity: 1 !important;
   visibility: visible !important;
 }
+/* ── Viewer toolbar ─────────────────────────────────── */
+.viewer-toolbar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 30;
+  background: rgba(255,255,255,0.92);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.viewer-toolbar button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  color: #333;
+}
+.viewer-toolbar button:hover {
+  background: rgba(0,0,0,0.1);
+}
+
 .viewer-overlay {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;

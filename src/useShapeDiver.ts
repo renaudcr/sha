@@ -76,6 +76,7 @@ export const DEFAULT_CONFIG: ConfigState = {
 
 export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const sessionRef = useRef<any>(null);
+  const viewportRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -125,6 +126,7 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
           return;
         }
 
+        viewportRef.current = viewport;
         sessionRef.current = session;
         // Log all params so we can verify names and types
         const allParams = Object.values(session.parameters as Record<string, any>) as any[];
@@ -205,5 +207,41 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     } catch (_) {}
   }, []);
 
-  return { ready, error, updateParam, submitContact };
+  const zoomIn = useCallback(() => {
+    const cam = viewportRef.current?.camera;
+    if (cam) { cam.zoomTo(undefined, 0.7); }
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    const cam = viewportRef.current?.camera;
+    if (cam) { cam.zoomTo(undefined, 1.4); }
+  }, []);
+
+  const resetCamera = useCallback(() => {
+    const cam = viewportRef.current?.camera;
+    if (cam) { cam.reset({}); }
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const wrapper = canvas.parentElement;
+    if (!wrapper) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      wrapper.requestFullscreen();
+    }
+  }, []);
+
+  const getScreenshot = useCallback(() => {
+    if (!viewportRef.current) return;
+    const dataUrl = viewportRef.current.getScreenshot("image/png", 1);
+    const link = document.createElement("a");
+    link.download = "escalier-colimacon.png";
+    link.href = dataUrl;
+    link.click();
+  }, []);
+
+  return { ready, error, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot };
 }
