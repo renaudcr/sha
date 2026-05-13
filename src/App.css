@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: row;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden; /* keeps layout — ShapeDiver toolbar uses its own stacking */
 }
 
 /* ── 3D Viewer ──────────────────────────────────────── */
@@ -41,7 +41,11 @@ body {
   width: 100%;
   height: 100%;
   display: block;
-  transform: translateZ(0);
+}
+/* Allow ShapeDiver toolbar and UI to render above canvas */
+.viewer-wrapper > div,
+.viewer-wrapper canvas ~ div {
+  z-index: 10;
 }
 .viewer-overlay {
   position: absolute; inset: 0;
