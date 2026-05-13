@@ -36,16 +36,21 @@ body {
   position: relative;
   background: #1a0a00;
   min-width: 0;
+  overflow: visible;
 }
 .viewer-canvas {
   width: 100%;
   height: 100%;
   display: block;
 }
-/* Allow ShapeDiver toolbar and UI to render above canvas */
-.viewer-wrapper > div,
-.viewer-wrapper canvas ~ div {
-  z-index: 10;
+/* ShapeDiver viewer toolbar — ensure it stays visible */
+.viewer-wrapper [class*="sd-"],
+.viewer-wrapper [id*="shapediver"],
+.viewer-wrapper > div:not(.viewer-overlay):not(.viewer-error) {
+  z-index: 20 !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .viewer-overlay {
   position: absolute; inset: 0;
@@ -53,6 +58,8 @@ body {
   align-items: center; justify-content: center;
   background: rgba(15,5,0,0.75);
   color: #e8d090; gap: 8px;
+  z-index: 5;
+  pointer-events: none;
 }
 .viewer-error { background: rgba(50,5,0,0.85); }
 .loader-text {
