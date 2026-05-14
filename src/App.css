@@ -413,11 +413,21 @@ body {
 
 /* ── Warning ────────────────────────────────────────── */
 .warning-box {
-  color: #8b5c00;
-  font-size: 0.75rem;
-  padding: 3px 0 2px;
-  line-height: 1.7;
+  color: #8b3a00;
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 8px 10px;
+  margin-top: 6px;
+  line-height: 1.8;
   text-align: center;
+  background: rgba(200, 120, 0, 0.12);
+  border: 1.5px solid rgba(180, 100, 0, 0.35);
+  border-radius: 4px;
+}
+.warning-icon {
+  font-size: 1rem;
+  vertical-align: middle;
+  margin: 0 3px;
 }
 
 /* ── Required note ──────────────────────────────────── */

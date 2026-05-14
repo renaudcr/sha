@@ -206,7 +206,13 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
             fallback={[{ value: 0, label: "0" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }, { value: 4, label: "4" }]} />
           {nfViolation && (
             <div className="warning-box">
-              Écart entre balustres : {gap} mm — norme NF P01-012 non respectée (max 110 mm)
+              <span className="warning-icon">⚠</span>
+              Aucun balustre intermédiaire signifie un écart de {gap} mm
+              <span className="warning-icon">⚠</span>
+              <br />
+              <span className="warning-icon">⚠</span>
+              La norme publique NF P01-012 n'est pas respectée (max 110 mm)
+              <span className="warning-icon">⚠</span>
             </div>
           )}
         </div>
