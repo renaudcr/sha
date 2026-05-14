@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -o \"export [a-zA-Z{} ,*]*\" \"c:/Users/W/staircase-configurator/node_modules/@shapediver/viewer/dist/index.d.ts\")",
+      "WebFetch(domain:www.renaudcreations.fr)",
+      "Bash(grep -ri \"toolbar\\\\|branding\" node_modules/@shapediver/viewer*/dist/*.d.ts)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(git add src/App.tsx src/App.css)",
+      "Bash(git commit -m \"feat: add undo/redo for configuration changes\")",
+      "Bash(git push origin master)"
+    ]
+  }
+}
