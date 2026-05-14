@@ -43,15 +43,6 @@ body {
   height: 100%;
   display: block;
 }
-/* ShapeDiver viewer toolbar — ensure it stays visible */
-.viewer-wrapper [class*="sd-"],
-.viewer-wrapper [id*="shapediver"],
-.viewer-wrapper > div:not(.viewer-overlay):not(.viewer-error) {
-  z-index: 20 !important;
-  pointer-events: auto !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
 /* ── Viewer toolbar ─────────────────────────────────── */
 .viewer-toolbar {
   position: absolute;
