@@ -74,11 +74,15 @@ export const DEFAULT_CONFIG: ConfigState = {
   distributionPlate: 0,
 };
 
+// Choices for StringList parameters, keyed by our config key
+export type ParamChoices = Record<string, { label: string; value: string }[]>;
+
 export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   const sessionRef = useRef<any>(null);
   const viewportRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paramChoices, setParamChoices] = useState<ParamChoices>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -128,10 +132,26 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
 
         viewportRef.current = viewport;
         sessionRef.current = session;
-        // Log all params so we can verify names and types
+        // Extract parameter choices from the model
         const allParams = Object.values(session.parameters as Record<string, any>) as any[];
-        console.log("[ShapeDiver] StringList choices:", allParams.filter(p => p.type === "StringList").map(p => ({ name: p.name, choices: p.choices })));
-        console.log("[ShapeDiver] all parameters:", allParams.map(p => ({ name: p.name, type: p.type, value: p.value })));
+        console.log("[ShapeDiver] all parameters:", allParams.map(p => ({ name: p.name, type: p.type, value: p.value, choices: p.choices })));
+
+        // Build choices map: our config key -> array of {label, value}
+        const reverseMap: Record<string, string> = {};
+        for (const [key, name] of Object.entries(PARAM_NAMES)) {
+          reverseMap[name] = key;
+        }
+        const choices: ParamChoices = {};
+        for (const p of allParams) {
+          const key = reverseMap[p.name];
+          if (key && p.choices) {
+            choices[key] = p.choices.map((label: string, idx: number) => ({
+              label,
+              value: String(idx),
+            }));
+          }
+        }
+        setParamChoices(choices);
         setReady(true);
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? "ShapeDiver init failed");
@@ -184,27 +204,61 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
   const submitContact = useCallback(async (contactData: Record<string, string>) => {
     if (!sessionRef.current) return;
     const params = sessionRef.current.parameters;
+    const allParams = Object.values(params as Record<string, any>) as any[];
+
+    // Log all available params for debugging contact fields
+    console.log("[ShapeDiver] Contact submit — all params:", allParams.map(p => ({ name: p.name, type: p.type, value: p.value })));
 
     for (const [key, val] of Object.entries(contactData)) {
       const paramName = PARAM_NAMES[key];
       if (!paramName) continue;
-      const param = Object.values(params as Record<string, any>).find(
-        (p: any) => p.name === paramName
-      );
-      if (param) param.value = val;
+      const param = allParams.find((p: any) => p.name === paramName);
+      if (param) {
+        console.log(`[ShapeDiver] Contact: setting "${paramName}" = "${val}"`);
+        param.value = val;
+      } else {
+        console.warn(`[ShapeDiver] Contact: param not found: "${paramName}"`);
+      }
     }
 
     try {
       await sessionRef.current.customize();
-      // Trigger send flag
-      const sendParam = Object.values(params as Record<string, any>).find(
-        (p: any) => p.name === "Envoi de la demande pour être recontacté"
-      );
+      console.log("[ShapeDiver] Contact: customize after fields — OK");
+
+      // Find the send/trigger parameter — try multiple possible names
+      const sendNames = [
+        "Envoi de la demande pour être recontacté",
+        "Envoi",
+        "Send",
+        "Envoyer",
+      ];
+      let sendParam: any = null;
+      for (const name of sendNames) {
+        sendParam = allParams.find((p: any) => p.name === name);
+        if (sendParam) break;
+      }
+      // Also try partial match if exact match failed
+      if (!sendParam) {
+        sendParam = allParams.find((p: any) =>
+          (p.name as string).toLowerCase().includes("envoi") ||
+          (p.name as string).toLowerCase().includes("send")
+        );
+      }
+
       if (sendParam) {
+        console.log(`[ShapeDiver] Contact: found send param "${sendParam.name}" (type: ${sendParam.type}, current: ${sendParam.value})`);
+        // Toggle: ensure false first, then true
+        sendParam.value = false;
+        await sessionRef.current.customize();
         sendParam.value = true;
         await sessionRef.current.customize();
+        console.log("[ShapeDiver] Contact: send triggered — OK");
+      } else {
+        console.warn("[ShapeDiver] Contact: NO send/trigger param found! Available:", allParams.map(p => p.name));
       }
-    } catch (_) {}
+    } catch (e) {
+      console.error("[ShapeDiver] Contact submit error:", e);
+    }
   }, []);
 
   const zoomCamera = useCallback((factor: number) => {
@@ -252,5 +306,5 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     link.click();
   }, []);
 
-  return { ready, error, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot };
+  return { ready, error, paramChoices, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot };
 }

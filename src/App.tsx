@@ -10,7 +10,7 @@ const TABS: Tab[] = ["features", "contact"];
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { ready, error, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot } = useShapeDiver(canvasRef);
+  const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot } = useShapeDiver(canvasRef);
   const [tab, setTab] = useState<Tab>("features");
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -268,7 +268,7 @@ export default function App() {
         {/* Tab content */}
         <div className="panel-body">
           {tab === "features" && (
-            <FeaturesTab config={config} onChange={handleConfigChange} />
+            <FeaturesTab config={config} onChange={handleConfigChange} paramChoices={paramChoices} />
           )}
           {tab === "contact" && (
             <ContactTab onSubmit={(data) => submitContact(data as unknown as Record<string, string>)} onBack={goPrev} />

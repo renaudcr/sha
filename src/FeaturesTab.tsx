@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import type { ConfigState } from "./useShapeDiver";
+import type { ParamChoices } from "./useShapeDiver";
 
 interface Props {
   config: ConfigState;
   onChange: (key: keyof ConfigState, value: number) => void;
+  paramChoices: ParamChoices;
 }
 
 /* ── Custom number stepper with click-to-edit ── */
@@ -92,7 +94,28 @@ function calcGap(diameter: number, balusters: number): number {
   return Math.round(circumference / sections);
 }
 
-export default function FeaturesTab({ config, onChange }: Props) {
+/* ── Dynamic select: renders choices from ShapeDiver when available, fallback otherwise ── */
+function DynSel({
+  configKey, value, onChange, paramChoices, fallback,
+}: {
+  configKey: keyof ConfigState;
+  value: number;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  paramChoices: ParamChoices;
+  fallback: { value: number; label: string }[];
+}) {
+  const choices = paramChoices[configKey];
+  return (
+    <Sel value={value} onChange={onChange}>
+      {choices
+        ? choices.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)
+        : fallback.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)
+      }
+    </Sel>
+  );
+}
+
+export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
   const sel = (key: keyof ConfigState) =>
     (e: React.ChangeEvent<HTMLSelectElement>) => onChange(key, Number(e.target.value));
   const num = (key: keyof ConfigState) => (v: number) => onChange(key, v);
@@ -113,139 +136,91 @@ export default function FeaturesTab({ config, onChange }: Props) {
         </Field>
 
         <Field label="Type de trémie">
-          <Sel value={config.openingType} onChange={sel("openingType")}>
-            <option value={0}>Carrée</option>
-            <option value={1}>Ronde</option>
-          </Sel>
+          <DynSel configKey="openingType" value={config.openingType} onChange={sel("openingType")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Carrée" }, { value: 1, label: "Ronde" }]} />
         </Field>
 
         <Field label="Sens de rotation">
-          <Sel value={config.rotation} onChange={sel("rotation")}>
-            <option value={0}>Horaire</option>
-            <option value={1}>Anti-horaire</option>
-          </Sel>
+          <DynSel configKey="rotation" value={config.rotation} onChange={sel("rotation")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Horaire" }, { value: 1, label: "Anti-horaire" }]} />
         </Field>
 
         <Field label="Dessus de marches">
-          <Sel value={config.treadTop} onChange={sel("treadTop")}>
-            <option value={0}>Pleine</option>
-            <option value={1}>Bois – chêne brut</option>
-            <option value={2}>Bois – chêne vitrifié</option>
-            <option value={3}>Bois – teck brut</option>
-            <option value={4}>Bois – teck huilé</option>
-            <option value={5}>Dentelle</option>
-          </Sel>
+          <DynSel configKey="treadTop" value={config.treadTop} onChange={sel("treadTop")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Pleine" }, { value: 1, label: "Dentelle" }]} />
         </Field>
 
         <Field label="Contre-marches">
-          <Sel value={config.risers} onChange={sel("risers")}>
-            <option value={4}>Dentelle</option>
-            <option value={0}>Deep Forest</option>
-            <option value={1}>Plein</option>
-            <option value={2}>Ouvert</option>
-          </Sel>
+          <DynSel configKey="risers" value={config.risers} onChange={sel("risers")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Plein" }, { value: 1, label: "Ouvert" }]} />
         </Field>
 
         <Field label="Main courante">
-          <Sel value={config.handrail} onChange={sel("handrail")}>
-            <option value={0}>Câble tressé acier</option>
-            <option value={1}>Chanvre</option>
-            <option value={2}>Plate</option>
-            <option value={3}>Ronde</option>
-            <option value={4}>Moulurée</option>
-          </Sel>
+          <DynSel configKey="handrail" value={config.handrail} onChange={sel("handrail")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Plate" }, { value: 1, label: "Ronde" }]} />
         </Field>
 
         <Field label="Garde-corps étage">
-          <Sel value={config.floorRailing} onChange={sel("floorRailing")}>
-            <option value={0}>Marche palière</option>
-            <option value={1}>Tour de trémie</option>
-          </Sel>
+          <DynSel configKey="floorRailing" value={config.floorRailing} onChange={sel("floorRailing")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Marche palière" }, { value: 1, label: "Tour de trémie" }]} />
         </Field>
 
         <Field label="Poteau de départ">
-          <Sel value={config.startPost} onChange={sel("startPost")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Avec</option>
-          </Sel>
+          <DynSel configKey="startPost" value={config.startPost} onChange={sel("startPost")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </Field>
 
         <Field label="Poteau d'arrivée">
-          <Sel value={config.endPost} onChange={sel("endPost")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Avec</option>
-          </Sel>
+          <DynSel configKey="endPost" value={config.endPost} onChange={sel("endPost")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </Field>
 
         <Field label="Crosse au départ">
-          <Sel value={config.startNewel} onChange={sel("startNewel")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Courte</option>
-            <option value={2}>Longue</option>
-          </Sel>
+          <DynSel configKey="startNewel" value={config.startNewel} onChange={sel("startNewel")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Courte" }, { value: 2, label: "Longue" }]} />
         </Field>
 
         <Field label="Crosse à l'arrivée">
-          <Sel value={config.endNewel} onChange={sel("endNewel")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Courte</option>
-            <option value={2}>Longue</option>
-          </Sel>
+          <DynSel configKey="endNewel" value={config.endNewel} onChange={sel("endNewel")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Courte" }, { value: 2, label: "Longue" }]} />
         </Field>
 
         {config.startPost === 1 && (
           <Field label="Boule au départ">
-            <Sel value={config.startBall} onChange={sel("startBall")}>
-              <option value={0}>Sans</option>
-              <option value={1}>Acier</option>
-              <option value={2}>Verre</option>
-            </Sel>
+            <DynSel configKey="startBall" value={config.startBall} onChange={sel("startBall")} paramChoices={paramChoices}
+              fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Acier" }, { value: 2, label: "Verre" }]} />
           </Field>
         )}
 
         {config.endPost === 1 && (
           <Field label="Boule à l'arrivée">
-            <Sel value={config.endBall} onChange={sel("endBall")}>
-              <option value={0}>Sans</option>
-              <option value={1}>Acier</option>
-              <option value={2}>Verre</option>
-            </Sel>
+            <DynSel configKey="endBall" value={config.endBall} onChange={sel("endBall")} paramChoices={paramChoices}
+              fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Acier" }, { value: 2, label: "Verre" }]} />
           </Field>
         )}
 
         {/* Full-width: balusters */}
         <div className="field field--full">
           <label className="field-label">Balustres intermédiaires</label>
-          <Sel value={config.balusters} onChange={sel("balusters")}>
-            <option value={0}>0</option>
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-            <option value={4}>4</option>
-          </Sel>
+          <DynSel configKey="balusters" value={config.balusters} onChange={sel("balusters")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "0" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }, { value: 4, label: "4" }]} />
           {nfViolation && (
             <div className="warning-box">
-              ⚠️ Écart entre balustres : {gap} mm — norme NF P01-012 non respectée (max 110 mm) ⚠️
+              Écart entre balustres : {gap} mm — norme NF P01-012 non respectée (max 110 mm)
             </div>
           )}
         </div>
 
         <div className="field field--full">
           <label className="field-label">Plaque de répartition de charge</label>
-          <Sel value={config.distributionPlate} onChange={sel("distributionPlate")}>
-            <option value={0}>Sans</option>
-            <option value={1}>Avec</option>
-          </Sel>
+          <DynSel configKey="distributionPlate" value={config.distributionPlate} onChange={sel("distributionPlate")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </div>
 
         <div className="field field--full">
           <label className="field-label">Marches sans garde-corps</label>
-          <Sel value={config.treadsNoRail} onChange={sel("treadsNoRail")}>
-            <option value={0}>Aucune</option>
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-          </Sel>
+          <DynSel configKey="treadsNoRail" value={config.treadsNoRail} onChange={sel("treadsNoRail")} paramChoices={paramChoices}
+            fallback={[{ value: 0, label: "Aucune" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }]} />
         </div>
 
       </div>
