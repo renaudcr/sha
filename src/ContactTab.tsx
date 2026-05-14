@@ -99,7 +99,7 @@ export default function ContactTab({ onSubmit, onBack }: Props) {
         </div>
 
         <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
-          <label className="field-label">Adresse du chantier</label>
+          <label className="field-label">Email</label>
           <input className="input" type="text"
             value={data.postalAddress} onChange={set("postalAddress")} />
         </div>
