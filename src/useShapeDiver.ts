@@ -207,19 +207,28 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     } catch (_) {}
   }, []);
 
-  const zoomIn = useCallback(() => {
+  const zoomCamera = useCallback((factor: number) => {
     const cam = viewportRef.current?.camera;
-    if (cam) { cam.zoomTo(undefined, 0.7); }
+    if (!cam) return;
+    const pos = cam.position;
+    const tgt = cam.target;
+    // Move camera position closer/further from target
+    const dir = [pos[0] - tgt[0], pos[1] - tgt[1], pos[2] - tgt[2]];
+    cam.position = [
+      tgt[0] + dir[0] * factor,
+      tgt[1] + dir[1] * factor,
+      tgt[2] + dir[2] * factor,
+    ];
   }, []);
 
-  const zoomOut = useCallback(() => {
-    const cam = viewportRef.current?.camera;
-    if (cam) { cam.zoomTo(undefined, 1.4); }
-  }, []);
+  const zoomIn = useCallback(() => zoomCamera(0.8), [zoomCamera]);
+  const zoomOut = useCallback(() => zoomCamera(1.25), [zoomCamera]);
 
   const resetCamera = useCallback(() => {
     const cam = viewportRef.current?.camera;
-    if (cam) { cam.reset({}); }
+    if (!cam) return;
+    cam.position = cam.defaultPosition;
+    cam.target = cam.defaultTarget;
   }, []);
 
   const toggleFullscreen = useCallback(() => {
