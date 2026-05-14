@@ -85,10 +85,9 @@ export default function ContactTab({ onSubmit, onBack }: Props) {
         </div>
 
         <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
-          <label className="field-label">Adresse mail*</label>
-          <input className={`input${errors.email ? " input-error" : ""}`}
-            type="email" value={data.email} onChange={set("email")} />
-          {errors.email && <span className="error-msg">{errors.email}</span>}
+          <label className="field-label">Adresse postale</label>
+          <input className="input" type="text"
+            value={data.postalAddress} onChange={set("postalAddress")} />
         </div>
 
         <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
@@ -99,9 +98,10 @@ export default function ContactTab({ onSubmit, onBack }: Props) {
         </div>
 
         <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
-          <label className="field-label">Email</label>
-          <input className="input" type="text"
-            value={data.postalAddress} onChange={set("postalAddress")} />
+          <label className="field-label">E-mail*</label>
+          <input className={`input${errors.email ? " input-error" : ""}`}
+            type="email" value={data.email} onChange={set("email")} />
+          {errors.email && <span className="error-msg">{errors.email}</span>}
         </div>
 
         <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
