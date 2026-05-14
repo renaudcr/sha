@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useShapeDiver, DEFAULT_CONFIG } from "./useShapeDiver";
 import type { ConfigState } from "./useShapeDiver";
 import FeaturesTab from "./FeaturesTab";
@@ -14,11 +14,64 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("features");
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
 
+  // Undo/redo history
+  const [history, setHistory] = useState<ConfigState[]>([DEFAULT_CONFIG]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  // Apply a full config state to ShapeDiver
+  const applyConfig = useCallback((cfg: ConfigState) => {
+    Object.entries(cfg).forEach(([key, val]) => {
+      updateParam(key as keyof ConfigState, val);
+    });
+  }, [updateParam]);
+
   // Sync param changes to ShapeDiver
   const handleConfigChange = (key: keyof ConfigState, value: number) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
+    const newConfig = { ...config, [key]: value };
+    setConfig(newConfig);
     updateParam(key, value);
+
+    // Push to history, discarding any future states after current index
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), newConfig]);
+    setHistoryIndex((prev) => prev + 1);
   };
+
+  const undo = useCallback(() => {
+    if (!canUndo) return;
+    const newIndex = historyIndex - 1;
+    const prevConfig = history[newIndex];
+    setHistoryIndex(newIndex);
+    setConfig(prevConfig);
+    applyConfig(prevConfig);
+  }, [canUndo, historyIndex, history, applyConfig]);
+
+  const redo = useCallback(() => {
+    if (!canRedo) return;
+    const newIndex = historyIndex + 1;
+    const nextConfig = history[newIndex];
+    setHistoryIndex(newIndex);
+    setConfig(nextConfig);
+    applyConfig(nextConfig);
+  }, [canRedo, historyIndex, history, applyConfig]);
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [undo, redo]);
 
   // On ready, push all defaults to the model
   useEffect(() => {
@@ -58,6 +111,13 @@ export default function App() {
             </button>
             <button onClick={getScreenshot} title="Capture d'écran">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </button>
+            <span className="toolbar-divider" />
+            <button onClick={undo} disabled={!canUndo} title="Annuler (Ctrl+Z)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            </button>
+            <button onClick={redo} disabled={!canRedo} title="Rétablir (Ctrl+Y)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
             </button>
           </div>
         )}

@@ -70,8 +70,18 @@ body {
   transition: background 0.15s;
   color: #333;
 }
-.viewer-toolbar button:hover {
+.viewer-toolbar button:hover:not(:disabled) {
   background: rgba(0,0,0,0.1);
+}
+.viewer-toolbar button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.toolbar-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 2px;
+  background: rgba(0,0,0,0.2);
 }
 
 .viewer-overlay {
