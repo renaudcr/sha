@@ -155,6 +155,42 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
           }
         }
         setParamChoices(choices);
+
+        // Create orthographic cameras for preset views
+        try {
+          const { ORTHOGRAPHIC_CAMERA_DIRECTION } = await import("@shapediver/viewer");
+          // Remember default perspective camera
+          const cam = viewport.camera;
+          defaultCameraIdRef.current = cam ? (cam as any).id || Object.keys(viewport.cameras)[0] : "";
+
+          const dirMap: Record<string, any> = {
+            top: ORTHOGRAPHIC_CAMERA_DIRECTION.TOP,
+            left: ORTHOGRAPHIC_CAMERA_DIRECTION.LEFT,
+            right: ORTHOGRAPHIC_CAMERA_DIRECTION.RIGHT,
+            front: ORTHOGRAPHIC_CAMERA_DIRECTION.FRONT,
+            back: ORTHOGRAPHIC_CAMERA_DIRECTION.BACK,
+          };
+          const existingCameras = viewport.cameras || {};
+          for (const [dir, enumVal] of Object.entries(dirMap)) {
+            if (existingCameras[dir]) {
+              // Camera already exists, just reference it
+              orthoCamerasRef.current[dir] = dir;
+            } else {
+              try {
+                const ortho = viewport.createOrthographicCamera(dir);
+                ortho.direction = enumVal;
+                orthoCamerasRef.current[dir] = dir;
+              } catch (camErr) {
+                console.warn(`[ShapeDiver] ortho camera "${dir}" already exists, reusing`);
+                orthoCamerasRef.current[dir] = dir;
+              }
+            }
+          }
+          console.log("[ShapeDiver] ortho cameras ready, default:", defaultCameraIdRef.current);
+        } catch (camErr) {
+          console.warn("[ShapeDiver] Failed to create orthographic cameras:", camErr);
+        }
+
         setReady(true);
       } catch (e: any) {
         if (!cancelled) setError(e?.message ?? "ShapeDiver init failed");
@@ -311,34 +347,9 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
   type CameraPreset = "perspective" | "top" | "left" | "right" | "front" | "back";
   const orthoCamerasRef = useRef<Record<string, string>>({});
   const defaultCameraIdRef = useRef<string>("");
-
   const setCameraView = useCallback((preset: CameraPreset) => {
     const viewport = viewportRef.current;
     if (!viewport) return;
-
-    // First time: create orthographic cameras and remember the default perspective
-    if (!defaultCameraIdRef.current) {
-      // Remember default perspective camera
-      const cam = viewport.camera;
-      defaultCameraIdRef.current = cam ? (cam as any).id || Object.keys(viewport.cameras)[0] : "";
-
-      // Import ORTHOGRAPHIC_CAMERA_DIRECTION dynamically
-      import("@shapediver/viewer").then(({ ORTHOGRAPHIC_CAMERA_DIRECTION }) => {
-        const dirMap: Record<string, any> = {
-          top: ORTHOGRAPHIC_CAMERA_DIRECTION.TOP,
-          left: ORTHOGRAPHIC_CAMERA_DIRECTION.LEFT,
-          right: ORTHOGRAPHIC_CAMERA_DIRECTION.RIGHT,
-          front: ORTHOGRAPHIC_CAMERA_DIRECTION.FRONT,
-          back: ORTHOGRAPHIC_CAMERA_DIRECTION.BACK,
-        };
-        for (const [dir, enumVal] of Object.entries(dirMap)) {
-          const ortho = viewport.createOrthographicCamera(dir);
-          ortho.direction = enumVal;
-          orthoCamerasRef.current[dir] = dir;
-        }
-        console.log("[ShapeDiver] created ortho cameras, default:", defaultCameraIdRef.current, "all:", Object.keys(viewport.cameras));
-      });
-    }
 
     if (preset === "perspective") {
       if (defaultCameraIdRef.current) {
