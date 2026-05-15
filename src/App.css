@@ -679,6 +679,13 @@ body {
   .toolbar-divider {
     margin: 4px 2px;
   }
+
+  /* Fix dropdown position on mobile — anchor to left instead of right */
+  .toolbar-dropdown {
+    right: auto;
+    left: 0;
+    min-width: 160px;
+  }
 }
 @media (max-width: 480px) {
   .viewer-wrapper { height: 40vh; min-height: 220px; max-height: 360px; }
