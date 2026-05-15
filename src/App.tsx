@@ -13,9 +13,7 @@ export default function App() {
   const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot, setCameraView, startAR } = useShapeDiver(canvasRef);
   const [tab, setTab] = useState<Tab>("features");
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [cameraMenuOpen, setCameraMenuOpen] = useState(false);
-  const moreMenuRef = useRef<HTMLDivElement>(null);
   const cameraMenuRef = useRef<HTMLDivElement>(null);
 
   // Undo/redo history
@@ -77,96 +75,17 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [undo, redo]);
 
-  // Close menus when clicking outside
+  // Close camera menu when clicking outside
   useEffect(() => {
-    if (!moreMenuOpen && !cameraMenuOpen) return;
+    if (!cameraMenuOpen) return;
     const handler = (e: MouseEvent) => {
-      if (moreMenuOpen && moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
-        setMoreMenuOpen(false);
-      }
-      if (cameraMenuOpen && cameraMenuRef.current && !cameraMenuRef.current.contains(e.target as Node)) {
+      if (cameraMenuRef.current && !cameraMenuRef.current.contains(e.target as Node)) {
         setCameraMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [moreMenuOpen, cameraMenuOpen]);
-
-  // Export parameter values as JSON file
-  const exportParams = useCallback(() => {
-    const json = JSON.stringify(config, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = "parametres-escalier.json";
-    link.href = url;
-    link.click();
-    URL.revokeObjectURL(url);
-    setMoreMenuOpen(false);
-  }, [config]);
-
-  // Import parameter values from JSON file
-  const importParams = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const imported = JSON.parse(reader.result as string) as ConfigState;
-          setConfig(imported);
-          applyConfig(imported);
-          setHistory((prev) => [...prev.slice(0, historyIndex + 1), imported]);
-          setHistoryIndex((prev) => prev + 1);
-        } catch { /* ignore invalid files */ }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-    setMoreMenuOpen(false);
-  }, [applyConfig, historyIndex]);
-
-  // Create model state — snapshot with timestamp
-  const createModelState = useCallback(() => {
-    const state = { config, timestamp: new Date().toISOString() };
-    const json = JSON.stringify(state, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.download = `etat-modele-${Date.now()}.json`;
-    link.href = url;
-    link.click();
-    URL.revokeObjectURL(url);
-    setMoreMenuOpen(false);
-  }, [config]);
-
-  // Import model state from JSON file
-  const importModelState = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result as string);
-          const imported = (parsed.config ?? parsed) as ConfigState;
-          setConfig(imported);
-          applyConfig(imported);
-          setHistory((prev) => [...prev.slice(0, historyIndex + 1), imported]);
-          setHistoryIndex((prev) => prev + 1);
-        } catch { /* ignore invalid files */ }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-    setMoreMenuOpen(false);
-  }, [applyConfig, historyIndex]);
+  }, [cameraMenuOpen]);
 
   // On ready, push all defaults to the model
   useEffect(() => {
@@ -200,8 +119,7 @@ export default function App() {
               {cameraMenuOpen && (
                 <div className="toolbar-dropdown">
                   <button onClick={() => { setCameraView("perspective"); setCameraMenuOpen(false); }}>Perspective</button>
-                  <button onClick={() => { setCameraView("top"); setCameraMenuOpen(false); }}>Top</button>
-                  <button onClick={() => { setCameraView("bottom"); setCameraMenuOpen(false); }}>Bottom</button>
+                  <button onClick={() => { setCameraView("top"); setCameraMenuOpen(false); }}>Top (Plan)</button>
                   <button onClick={() => { setCameraView("left"); setCameraMenuOpen(false); }}>Left</button>
                   <button onClick={() => { setCameraView("right"); setCameraMenuOpen(false); }}>Right</button>
                   <button onClick={() => { setCameraView("front"); setCameraMenuOpen(false); }}>Front</button>
@@ -238,21 +156,6 @@ export default function App() {
             <button onClick={resetCamera} title="Recentrer la vue">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
             </button>
-            {/* More menu */}
-            <div className="toolbar-more" ref={moreMenuRef}>
-              <button onClick={() => setMoreMenuOpen((v) => !v)} title="Plus d'options">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
-              </button>
-              {moreMenuOpen && (
-                <div className="toolbar-dropdown">
-                  <button onClick={importParams}>Import parameter values</button>
-                  <button onClick={exportParams}>Export parameter values</button>
-                  <hr />
-                  <button onClick={createModelState}>Create model state</button>
-                  <button onClick={importModelState}>Import model state</button>
-                </div>
-              )}
-            </div>
           </div>
         )}
         {!ready && !error && (
