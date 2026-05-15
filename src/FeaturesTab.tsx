@@ -146,7 +146,7 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         </Field>
 
         <div className="field field--full">
-          <label className="field-label">Rotation escalier</label>
+          <label className="field-label">Rotation de l'escalier</label>
           <div className="slider-row">
             <input
               type="range"
