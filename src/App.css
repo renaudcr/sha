@@ -542,7 +542,7 @@ body {
 /* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 768px) {
   .app { flex-direction: column; height: auto; min-height: 100vh; }
-  .viewer-wrapper { height: 45vw; min-height: 200px; max-height: 320px; flex: none; }
+  .viewer-wrapper { height: 55vh; min-height: 300px; max-height: 500px; flex: none; }
   .panel { width: 100%; max-width: 100%; border-left: none; border-top: 3px solid #3a2000; }
 }
 @media (max-width: 480px) {
