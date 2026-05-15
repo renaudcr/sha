@@ -21,7 +21,7 @@ function Stepper({
 
   const startEdit = () => { setDraft(String(value)); setEditing(true); };
   const commitEdit = () => {
-    const n = parseInt(draft, 10);
+    const n = parseFloat(draft);
     if (!isNaN(n)) onChange(Math.min(max, Math.max(min, n)));
     setEditing(false);
   };
@@ -144,6 +144,26 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
           <DynSel configKey="rotation" value={config.rotation} onChange={sel("rotation")} paramChoices={paramChoices}
             fallback={[{ value: 0, label: "Horaire" }, { value: 1, label: "Anti-horaire" }]} />
         </Field>
+
+        <div className="field field--full">
+          <label className="field-label">Rotation escalier</label>
+          <div className="slider-row">
+            <input
+              type="range"
+              className="slider"
+              min={0}
+              max={12}
+              step={0.01}
+              value={config.stairRotation}
+              onChange={(e) => onChange("stairRotation", parseFloat(e.target.value))}
+            />
+            <Stepper value={parseFloat(config.stairRotation.toFixed(2))} min={0} max={12} onChange={num("stairRotation")} />
+          </div>
+          <div className="slider-labels">
+            <span>0</span>
+            <span>12</span>
+          </div>
+        </div>
 
         <Field label="Dessus de marches">
           <DynSel configKey="treadTop" value={config.treadTop} onChange={sel("treadTop")} paramChoices={paramChoices}

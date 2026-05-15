@@ -332,6 +332,54 @@ body {
 .stepper-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .stepper-input[type=number] { -moz-appearance: textfield; }
 
+/* ── Slider row ────────────────────────────────────── */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.slider-row .stepper {
+  width: 70px;
+  flex-shrink: 0;
+}
+.slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: linear-gradient(90deg, #4a8ac7 0%, #4a8ac7 var(--slider-pct, 50%), #ccc var(--slider-pct, 50%), #ccc 100%);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a8ac7;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4a8ac7;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  margin-top: 2px;
+  padding: 0 2px;
+}
+
 /* ── Select wrap ────────────────────────────────────── */
 .select-wrap {
   position: relative;

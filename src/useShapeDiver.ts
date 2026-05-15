@@ -22,6 +22,7 @@ export const PARAM_NAMES: Record<string, string> = {
   endNewel: "Crosse à l'arrivée",
   startBall: "Boule au départ",
   endBall: "Boule à l'arrivée",
+  stairRotation: "Rotation escalier",
   balusters: "Balustres intermédiaires",
   treadsNoRail: "Marches sans garde-corps",
   distributionPlate: "Plaque de répartition charge",
@@ -50,6 +51,7 @@ export type ConfigState = {
   startBall: number;
   endBall: number;
   balusters: number;
+  stairRotation: number;
   treadsNoRail: number;
   distributionPlate: number;
 };
@@ -69,6 +71,7 @@ export const DEFAULT_CONFIG: ConfigState = {
   endNewel: 0,
   startBall: 0,
   endBall: 0,
+  stairRotation: 7.09,
   balusters: 0,
   treadsNoRail: 0,
   distributionPlate: 0,
