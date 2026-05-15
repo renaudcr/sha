@@ -307,5 +307,70 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     link.click();
   }, []);
 
-  return { ready, error, paramChoices, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot };
+  // Camera preset views
+  type CameraPreset = "perspective" | "top" | "bottom" | "left" | "right" | "front" | "back";
+
+  const setCameraView = useCallback((preset: CameraPreset) => {
+    const cam = viewportRef.current?.camera;
+    if (!cam) return;
+
+    const tgt = cam.defaultTarget ?? [0, 0, 0];
+    const dist = 3000; // distance from target
+
+    const presets: Record<CameraPreset, { position: number[] }> = {
+      perspective: { position: cam.defaultPosition ?? [dist * 0.7, dist * 0.7, dist * 0.7] },
+      top:        { position: [tgt[0], tgt[1], tgt[2] + dist] },
+      bottom:     { position: [tgt[0], tgt[1], tgt[2] - dist] },
+      left:       { position: [tgt[0] - dist, tgt[1], tgt[2]] },
+      right:      { position: [tgt[0] + dist, tgt[1], tgt[2]] },
+      front:      { position: [tgt[0], tgt[1] - dist, tgt[2]] },
+      back:       { position: [tgt[0], tgt[1] + dist, tgt[2]] },
+    };
+
+    const p = presets[preset];
+    cam.position = p.position;
+    cam.target = tgt;
+  }, []);
+
+  // AR mode
+  const startAR = useCallback(async () => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    // Try WebXR AR session via the viewport
+    if (viewport.enableAR) {
+      try {
+        await viewport.enableAR();
+        return;
+      } catch (e) {
+        console.warn("[ShapeDiver] viewport.enableAR() failed:", e);
+      }
+    }
+
+    // Fallback: check WebXR support directly
+    if (navigator.xr) {
+      const supported = await navigator.xr.isSessionSupported("immersive-ar");
+      if (supported) {
+        try {
+          const session = await navigator.xr.requestSession("immersive-ar", {
+            requiredFeatures: ["hit-test", "local-floor"],
+          });
+          // Attach to viewport if possible
+          if (viewport.setXRSession) {
+            viewport.setXRSession(session);
+          } else {
+            console.log("[ShapeDiver] AR session started but no viewport binding available");
+            session.end();
+          }
+          return;
+        } catch (e) {
+          console.warn("[ShapeDiver] WebXR AR request failed:", e);
+        }
+      }
+    }
+
+    alert("La réalité augmentée n'est pas disponible sur cet appareil. Essayez depuis un smartphone ou une tablette compatible.");
+  }, []);
+
+  return { ready, error, paramChoices, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot, setCameraView, startAR };
 }

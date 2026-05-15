@@ -10,11 +10,13 @@ const TABS: Tab[] = ["features", "contact"];
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot } = useShapeDiver(canvasRef);
+  const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot, setCameraView, startAR } = useShapeDiver(canvasRef);
   const [tab, setTab] = useState<Tab>("features");
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [cameraMenuOpen, setCameraMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+  const cameraMenuRef = useRef<HTMLDivElement>(null);
 
   // Undo/redo history
   const [history, setHistory] = useState<ConfigState[]>([DEFAULT_CONFIG]);
@@ -75,17 +77,20 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [undo, redo]);
 
-  // Close more menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
-    if (!moreMenuOpen) return;
+    if (!moreMenuOpen && !cameraMenuOpen) return;
     const handler = (e: MouseEvent) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+      if (moreMenuOpen && moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
         setMoreMenuOpen(false);
+      }
+      if (cameraMenuOpen && cameraMenuRef.current && !cameraMenuRef.current.contains(e.target as Node)) {
+        setCameraMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [moreMenuOpen]);
+  }, [moreMenuOpen, cameraMenuOpen]);
 
   // Export parameter values as JSON file
   const exportParams = useCallback(() => {
@@ -187,9 +192,26 @@ export default function App() {
         <canvas ref={canvasRef} className="viewer-canvas" />
         {ready && (
           <div className="viewer-toolbar">
-            {/* AR / 3D view */}
-            <button onClick={resetCamera} title="Vue 3D">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            {/* Camera presets dropdown */}
+            <div className="toolbar-more" ref={cameraMenuRef}>
+              <button onClick={() => setCameraMenuOpen((v) => !v)} title="Vues caméra">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              {cameraMenuOpen && (
+                <div className="toolbar-dropdown">
+                  <button onClick={() => { setCameraView("perspective"); setCameraMenuOpen(false); }}>Perspective</button>
+                  <button onClick={() => { setCameraView("top"); setCameraMenuOpen(false); }}>Top</button>
+                  <button onClick={() => { setCameraView("bottom"); setCameraMenuOpen(false); }}>Bottom</button>
+                  <button onClick={() => { setCameraView("left"); setCameraMenuOpen(false); }}>Left</button>
+                  <button onClick={() => { setCameraView("right"); setCameraMenuOpen(false); }}>Right</button>
+                  <button onClick={() => { setCameraView("front"); setCameraMenuOpen(false); }}>Front</button>
+                  <button onClick={() => { setCameraView("back"); setCameraMenuOpen(false); }}>Back</button>
+                </div>
+              )}
+            </div>
+            {/* AR button */}
+            <button onClick={startAR} title="Réalité augmentée">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>
             </button>
             {/* Zoom */}
             <button onClick={zoomIn} title="Zoom +">

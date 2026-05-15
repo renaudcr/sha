@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import type { ConfigState } from "./useShapeDiver";
 import type { ParamChoices } from "./useShapeDiver";
 
@@ -90,6 +90,113 @@ function Section({ title }: { title: string }) {
   );
 }
 
+/* ── Clock-style rotation dial ── */
+function RotationDial({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const dragging = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingVal = useRef(value);
+
+  // Debounced commit to ShapeDiver (avoids lag from frequent customize calls)
+  const commit = useCallback((v: number) => {
+    pendingVal.current = v;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => onChange(v), 200);
+  }, [onChange]);
+
+  // Cleanup timer on unmount
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  const angleFromValue = (v: number) => (v / 12) * 360 - 90; // 0=top(12 o'clock), clockwise
+  const valueFromAngle = (deg: number) => {
+    let norm = (deg + 90) % 360;
+    if (norm < 0) norm += 360;
+    return Math.round((norm / 360) * 12 * 100) / 100;
+  };
+
+  const getAngleFromEvent = (e: { clientX: number; clientY: number }) => {
+    const svg = svgRef.current;
+    if (!svg) return 0;
+    const rect = svg.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    return Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragging.current = true;
+    (e.target as Element).setPointerCapture(e.pointerId);
+    const angle = getAngleFromEvent(e);
+    commit(valueFromAngle(angle));
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    const angle = getAngleFromEvent(e);
+    commit(valueFromAngle(angle));
+  };
+
+  const handlePointerUp = () => {
+    dragging.current = false;
+    // Final commit immediately
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onChange(pendingVal.current);
+  };
+
+  const displayVal = pendingVal.current !== value && dragging.current ? pendingVal.current : value;
+  const handAngle = angleFromValue(displayVal);
+  const r = 44; // hand length
+  const cx = 50, cy = 50;
+  const hx = cx + r * Math.cos((handAngle * Math.PI) / 180);
+  const hy = cy + r * Math.sin((handAngle * Math.PI) / 180);
+
+  // Hour tick marks (0-11)
+  const ticks = Array.from({ length: 12 }, (_, i) => {
+    const a = (i / 12) * 360 - 90;
+    const rad = (a * Math.PI) / 180;
+    const outerR = 46;
+    const innerR = 40;
+    const labelR = 34;
+    return {
+      x1: cx + innerR * Math.cos(rad), y1: cy + innerR * Math.sin(rad),
+      x2: cx + outerR * Math.cos(rad), y2: cy + outerR * Math.sin(rad),
+      lx: cx + labelR * Math.cos(rad), ly: cy + labelR * Math.sin(rad),
+      label: String(i),
+    };
+  });
+
+  return (
+    <div className="rotation-dial">
+      <svg
+        ref={svgRef}
+        viewBox="0 0 100 100"
+        className="dial-svg"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        {/* Clock face */}
+        <circle cx={cx} cy={cy} r="47" fill="var(--input-bg)" stroke="var(--border)" strokeWidth="1.5" />
+        {/* Tick marks */}
+        {ticks.map((t, i) => (
+          <g key={i}>
+            <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="var(--ink-light)" strokeWidth="1" />
+            <text x={t.lx} y={t.ly} textAnchor="middle" dominantBaseline="central"
+              fontSize="5.5" fill="var(--ink-mid)" fontFamily="var(--font)">{t.label}</text>
+          </g>
+        ))}
+        {/* Center dot */}
+        <circle cx={cx} cy={cy} r="3" fill="var(--border)" />
+        {/* Hand */}
+        <line x1={cx} y1={cy} x2={hx} y2={hy} stroke="#8b4513" strokeWidth="2" strokeLinecap="round" />
+        {/* Hand tip */}
+        <circle cx={hx} cy={hy} r="2.5" fill="#8b4513" />
+      </svg>
+      <div className="dial-value">{displayVal.toFixed(2)}</div>
+    </div>
+  );
+}
+
 /* ── NF P01-012 gap calculation ──
    Circumference of stair ≈ π × diameter
    Sections between balusters = balusters + 1
@@ -159,22 +266,7 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
 
         <div className="field field--full">
           <label className="field-label">Rotation de l'escalier</label>
-          <div className="slider-row">
-            <input
-              type="range"
-              className="slider"
-              min={0}
-              max={12}
-              step={0.01}
-              value={config.stairRotation}
-              onChange={(e) => onChange("stairRotation", parseFloat(e.target.value))}
-            />
-            <Stepper value={parseFloat(config.stairRotation.toFixed(2))} min={0} max={12} onChange={num("stairRotation")} />
-          </div>
-          <div className="slider-labels">
-            <span>0</span>
-            <span>12</span>
-          </div>
+          <RotationDial value={config.stairRotation} onChange={num("stairRotation")} />
         </div>
 
         {/* ── Marches ── */}
