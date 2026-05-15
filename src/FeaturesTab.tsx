@@ -150,18 +150,20 @@ function RotationDial({ value, onChange }: { value: number; onChange: (v: number
   const hx = cx + r * Math.cos((handAngle * Math.PI) / 180);
   const hy = cy + r * Math.sin((handAngle * Math.PI) / 180);
 
-  // Hour tick marks (0-11)
+  // Hour tick marks (1-12)
   const ticks = Array.from({ length: 12 }, (_, i) => {
     const a = (i / 12) * 360 - 90;
     const rad = (a * Math.PI) / 180;
     const outerR = 46;
-    const innerR = 40;
-    const labelR = 34;
+    const isCardinal = i === 0 || i === 3 || i === 6 || i === 9;
+    const innerR = isCardinal ? 38 : 40;
+    const labelR = isCardinal ? 31 : 34;
     return {
       x1: cx + innerR * Math.cos(rad), y1: cy + innerR * Math.sin(rad),
       x2: cx + outerR * Math.cos(rad), y2: cy + outerR * Math.sin(rad),
       lx: cx + labelR * Math.cos(rad), ly: cy + labelR * Math.sin(rad),
-      label: String(i),
+      label: i === 0 ? "12" : String(i),
+      isCardinal,
     };
   });
 
@@ -180,9 +182,9 @@ function RotationDial({ value, onChange }: { value: number; onChange: (v: number
         {/* Tick marks */}
         {ticks.map((t, i) => (
           <g key={i}>
-            <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="var(--ink-light)" strokeWidth="1" />
+            <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="var(--ink-light)" strokeWidth={t.isCardinal ? "1.5" : "1"} />
             <text x={t.lx} y={t.ly} textAnchor="middle" dominantBaseline="central"
-              fontSize="5.5" fill="var(--ink-mid)" fontFamily="var(--font)">{t.label}</text>
+              fontSize={t.isCardinal ? "7" : "5"} fill="var(--ink-mid)" fontFamily="var(--font)" fontWeight={t.isCardinal ? "bold" : "normal"}>{t.label}</text>
           </g>
         ))}
         {/* Center dot */}
@@ -192,7 +194,6 @@ function RotationDial({ value, onChange }: { value: number; onChange: (v: number
         {/* Hand tip */}
         <circle cx={hx} cy={hy} r="2.5" fill="#8b4513" />
       </svg>
-      <div className="dial-value">{displayVal.toFixed(2)}</div>
     </div>
   );
 }
@@ -264,8 +265,8 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
             fallback={[{ value: 0, label: "Horaire" }, { value: 1, label: "Anti-horaire" }]} />
         </Field>
 
-        <div className="field field--full">
-          <label className="field-label">Rotation de l'escalier</label>
+        <div className="field field--full" style={{ textAlign: "center" }}>
+          <label className="field-label" style={{ textAlign: "center" }}>Rotation de l'escalier</label>
           <RotationDial value={config.stairRotation} onChange={num("stairRotation")} />
         </div>
 
