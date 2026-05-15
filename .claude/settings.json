@@ -7,7 +7,17 @@
       "Bash(npx tsc --noEmit)",
       "Bash(git add src/App.tsx src/App.css)",
       "Bash(git commit -m \"feat: add undo/redo for configuration changes\")",
-      "Bash(git push origin master)"
+      "Bash(git push origin master)",
+      "Bash(git add src/App.tsx src/App.css src/FeaturesTab.tsx src/useShapeDiver.ts)",
+      "Bash(git commit -m \"feat: dynamic dropdown options from ShapeDiver, toolbar redesign, email debug\")",
+      "WebFetch(domain:sdr8euc1.eu-central-1.shapediver.com)",
+      "Bash(git add src/ContactTab.tsx src/useShapeDiver.ts)",
+      "Bash(git commit -m \"fix: rename Adresse postale label to Email in contact form\")",
+      "Bash(git add src/ContactTab.tsx)",
+      "Bash(git commit:*)",
+      "Bash(git add src/FeaturesTab.tsx src/App.css)",
+      "Bash(git add src/App.css)",
+      "Bash(git add src/useShapeDiver.ts src/FeaturesTab.tsx src/App.css)"
     ]
   }
 }

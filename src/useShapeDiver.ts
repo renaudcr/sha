@@ -332,40 +332,47 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     cam.target = tgt;
   }, []);
 
-  // AR mode
+  // AR mode — uses ShapeDiver's built-in AR support
   const startAR = useCallback(async () => {
     const viewport = viewportRef.current;
     if (!viewport) return;
 
-    // Try WebXR AR session via the viewport
-    if (viewport.enableAR) {
+    // On mobile devices that support AR, launch directly
+    if (viewport.viewableInAR && viewport.viewableInAR()) {
       try {
-        await viewport.enableAR();
+        await viewport.viewInAR();
         return;
       } catch (e) {
-        console.warn("[ShapeDiver] viewport.enableAR() failed:", e);
+        console.warn("[ShapeDiver] viewInAR() failed:", e);
       }
     }
 
-    // Fallback: check WebXR support directly
-    if (navigator.xr) {
-      const supported = await navigator.xr.isSessionSupported("immersive-ar");
-      if (supported) {
-        try {
-          const session = await navigator.xr.requestSession("immersive-ar", {
-            requiredFeatures: ["hit-test", "local-floor"],
-          });
-          // Attach to viewport if possible
-          if (viewport.setXRSession) {
-            viewport.setXRSession(session);
-          } else {
-            console.log("[ShapeDiver] AR session started but no viewport binding available");
-            session.end();
-          }
-          return;
-        } catch (e) {
-          console.warn("[ShapeDiver] WebXR AR request failed:", e);
-        }
+    // On desktop or unsupported mobile: show QR code dialog
+    if (viewport.createArSessionLink) {
+      try {
+        const qrDataUrl = await viewport.createArSessionLink(undefined, true);
+        // Show QR code in a modal dialog
+        const overlay = document.createElement("div");
+        overlay.style.cssText = "position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)";
+        const dialog = document.createElement("div");
+        dialog.style.cssText = "background:#2a2a2a;color:#fff;border-radius:12px;padding:32px;max-width:420px;width:90%;text-align:center;position:relative;font-family:sans-serif";
+        dialog.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <span style="font-size:1.15rem;font-weight:500">Scan the code</span>
+            <button id="ar-close" style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:4px 8px">&times;</button>
+          </div>
+          <p style="margin-bottom:20px;color:#ccc;font-size:0.95rem;line-height:1.5">Scan the QR code below using your mobile device to see the model in AR. The code is compatible with Android and iOS devices.</p>
+          <img src="${qrDataUrl}" alt="QR Code AR" style="width:200px;height:200px;margin:0 auto;display:block;background:#fff;padding:12px;border-radius:8px" />
+        `;
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        const close = () => overlay.remove();
+        dialog.querySelector("#ar-close")!.addEventListener("click", close);
+        overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+        return;
+      } catch (e) {
+        console.warn("[ShapeDiver] createArSessionLink() failed:", e);
       }
     }
 
