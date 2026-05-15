@@ -212,6 +212,15 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     // Log all available params for debugging contact fields
     console.log("[ShapeDiver] Contact submit — all params:", allParams.map(p => ({ name: p.name, type: p.type, value: p.value })));
 
+    // Step 1: Activate the contact step (required for email trigger to work)
+    const stepParam = allParams.find((p: any) => p.name === "Passer à l'étape suivante");
+    if (stepParam) {
+      console.log("[ShapeDiver] Contact: setting 'Passer à l'étape suivante' = true");
+      stepParam.value = true;
+      await sessionRef.current.customize();
+    }
+
+    // Step 2: Set all contact field values
     for (const [key, val] of Object.entries(contactData)) {
       const paramName = PARAM_NAMES[key];
       if (!paramName) continue;
@@ -228,25 +237,8 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
       await sessionRef.current.customize();
       console.log("[ShapeDiver] Contact: customize after fields — OK");
 
-      // Find the send/trigger parameter — try multiple possible names
-      const sendNames = [
-        "Envoi de la demande pour être recontacté",
-        "Envoi",
-        "Send",
-        "Envoyer",
-      ];
-      let sendParam: any = null;
-      for (const name of sendNames) {
-        sendParam = allParams.find((p: any) => p.name === name);
-        if (sendParam) break;
-      }
-      // Also try partial match if exact match failed
-      if (!sendParam) {
-        sendParam = allParams.find((p: any) =>
-          (p.name as string).toLowerCase().includes("envoi") ||
-          (p.name as string).toLowerCase().includes("send")
-        );
-      }
+      // Step 3: Trigger the email send
+      const sendParam = allParams.find((p: any) => p.name === "Envoi de la demande pour \u00EAtre recontact\u00E9");
 
       if (sendParam) {
         console.log(`[ShapeDiver] Contact: found send param "${sendParam.name}" (type: ${sendParam.type}, current: ${sendParam.value})`);
