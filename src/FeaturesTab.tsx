@@ -81,6 +81,17 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+/* ── Section divider with ornamental flourish ── */
+function Section({ title }: { title: string }) {
+  return (
+    <div className="section-divider field--full">
+      <span className="section-ornament">&#10040;</span>
+      <span className="section-title">{title}</span>
+      <span className="section-ornament">&#10040;</span>
+    </div>
+  );
+}
+
 /* ── NF P01-012 gap calculation ──
    Circumference of stair ≈ π × diameter
    Sections between balusters = balusters + 1
@@ -127,6 +138,9 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
     <div className="tab-content">
       <div className="fields-grid">
 
+        {/* ── Dimensions ── */}
+        <Section title="Dimensions" />
+
         <Field label="Hauteur à monter">
           <Stepper value={config.height} min={1800} max={4500} unit="mm" onChange={num("height")} />
         </Field>
@@ -165,6 +179,9 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
           </div>
         </div>
 
+        {/* ── Marches ── */}
+        <Section title="Marches" />
+
         <Field label="Dessus de marches">
           <DynSel configKey="treadTop" value={config.treadTop} onChange={sel("treadTop")} paramChoices={paramChoices}
             fallback={[{ value: 0, label: "Pleine" }, { value: 1, label: "Dentelle" }]} />
@@ -174,6 +191,9 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
           <DynSel configKey="risers" value={config.risers} onChange={sel("risers")} paramChoices={paramChoices}
             fallback={[{ value: 0, label: "Plein" }, { value: 1, label: "Ouvert" }]} />
         </Field>
+
+        {/* ── Garde-corps ── */}
+        <Section title="Garde-corps" />
 
         <Field label="Main courante">
           <DynSel configKey="handrail" value={config.handrail} onChange={sel("handrail")} paramChoices={paramChoices}
@@ -219,7 +239,9 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
           </Field>
         )}
 
-        {/* Full-width: balusters */}
+        {/* ── Sécurité & Options ── */}
+        <Section title="S\u00E9curit\u00E9 & Options" />
+
         <div className="field field--full">
           <label className="field-label">Balustres intermédiaires</label>
           <DynSel configKey="balusters" value={config.balusters} onChange={sel("balusters")} paramChoices={paramChoices}
