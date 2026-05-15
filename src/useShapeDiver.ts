@@ -206,21 +206,27 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
 
   const submitContact = useCallback(async (contactData: Record<string, string>) => {
     if (!sessionRef.current) return;
-    const params = sessionRef.current.parameters;
+    const session = sessionRef.current;
+    const params = session.parameters;
     const allParams = Object.values(params as Record<string, any>) as any[];
 
-    // Log all available params for debugging contact fields
-    console.log("[ShapeDiver] Contact submit — all params:", allParams.map(p => ({ name: p.name, type: p.type, value: p.value })));
+    console.log("[ShapeDiver] Contact submit — setting fields...");
 
-    // Step 1: Activate the contact step (required for email trigger to work)
-    const stepParam = allParams.find((p: any) => p.name === "Passer à l'étape suivante");
+    // Step 1: Activate the contact step
+    const stepParam = allParams.find((p: any) => p.name === "Passer \u00E0 l'\u00E9tape suivante");
     if (stepParam) {
       console.log("[ShapeDiver] Contact: setting 'Passer à l'étape suivante' = true");
       stepParam.value = true;
-      await sessionRef.current.customize();
     }
 
-    // Step 2: Set all contact field values
+    // Step 2: Set the send trigger boolean
+    const sendParam = allParams.find((p: any) => p.name === "Envoi de la demande pour \u00EAtre recontact\u00E9");
+    if (sendParam) {
+      console.log("[ShapeDiver] Contact: setting send trigger = true");
+      sendParam.value = true;
+    }
+
+    // Step 3: Set all contact field values
     for (const [key, val] of Object.entries(contactData)) {
       const paramName = PARAM_NAMES[key];
       if (!paramName) continue;
@@ -234,22 +240,22 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     }
 
     try {
-      await sessionRef.current.customize();
-      console.log("[ShapeDiver] Contact: customize after fields — OK");
+      // Step 4: Customize with all values set (including send trigger)
+      await session.customize();
+      console.log("[ShapeDiver] Contact: customize — OK");
 
-      // Step 3: Trigger the email send
-      const sendParam = allParams.find((p: any) => p.name === "Envoi de la demande pour \u00EAtre recontact\u00E9");
+      // Step 5: Request the email export
+      const exports = session.exports;
+      const allExports = Object.values(exports as Record<string, any>) as any[];
+      console.log("[ShapeDiver] Contact: exports available:", allExports.map((e: any) => ({ name: e.name, type: e.type, id: e.id })));
 
-      if (sendParam) {
-        console.log(`[ShapeDiver] Contact: found send param "${sendParam.name}" (type: ${sendParam.type}, current: ${sendParam.value})`);
-        // Toggle: ensure false first, then true
-        sendParam.value = false;
-        await sessionRef.current.customize();
-        sendParam.value = true;
-        await sessionRef.current.customize();
-        console.log("[ShapeDiver] Contact: send triggered — OK");
+      const emailExport = allExports.find((e: any) => e.name === "Envoi Mail" || e.type === "email");
+      if (emailExport) {
+        console.log(`[ShapeDiver] Contact: requesting email export "${emailExport.name}" (id: ${emailExport.id})`);
+        const result = await emailExport.request();
+        console.log("[ShapeDiver] Contact: email export result:", result);
       } else {
-        console.warn("[ShapeDiver] Contact: NO send/trigger param found! Available:", allParams.map(p => p.name));
+        console.warn("[ShapeDiver] Contact: NO email export found! Exports:", allExports.map((e: any) => e.name));
       }
     } catch (e) {
       console.error("[ShapeDiver] Contact submit error:", e);
