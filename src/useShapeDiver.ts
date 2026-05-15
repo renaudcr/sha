@@ -307,37 +307,51 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     link.click();
   }, []);
 
-  // Camera preset views
+  // Camera preset views — use ShapeDiver's built-in orthographic cameras
   type CameraPreset = "perspective" | "top" | "left" | "right" | "front" | "back";
+  const orthoCamerasRef = useRef<Record<string, string>>({});
+  const defaultCameraIdRef = useRef<string>("");
 
   const setCameraView = useCallback((preset: CameraPreset) => {
-    const cam = viewportRef.current?.camera;
-    if (!cam) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
 
-    const tgt = cam.defaultTarget ?? [0, 0, 0];
-    const defPos = cam.defaultPosition ?? [0, 0, 0];
-    // Compute distance from default camera to target
-    const dx = defPos[0] - tgt[0], dy = defPos[1] - tgt[1], dz = defPos[2] - tgt[2];
-    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 3000;
+    // First time: create orthographic cameras and remember the default perspective
+    if (!defaultCameraIdRef.current) {
+      // Remember default perspective camera
+      const cam = viewport.camera;
+      defaultCameraIdRef.current = cam ? (cam as any).id || Object.keys(viewport.cameras)[0] : "";
 
-    console.log("[ShapeDiver] setCameraView:", preset, "defPos:", defPos, "target:", tgt, "dist:", dist);
+      // Import ORTHOGRAPHIC_CAMERA_DIRECTION dynamically
+      import("@shapediver/viewer").then(({ ORTHOGRAPHIC_CAMERA_DIRECTION }) => {
+        const dirMap: Record<string, any> = {
+          top: ORTHOGRAPHIC_CAMERA_DIRECTION.TOP,
+          left: ORTHOGRAPHIC_CAMERA_DIRECTION.LEFT,
+          right: ORTHOGRAPHIC_CAMERA_DIRECTION.RIGHT,
+          front: ORTHOGRAPHIC_CAMERA_DIRECTION.FRONT,
+          back: ORTHOGRAPHIC_CAMERA_DIRECTION.BACK,
+        };
+        for (const [dir, enumVal] of Object.entries(dirMap)) {
+          const ortho = viewport.createOrthographicCamera(dir);
+          ortho.direction = enumVal;
+          orthoCamerasRef.current[dir] = dir;
+        }
+        console.log("[ShapeDiver] created ortho cameras, default:", defaultCameraIdRef.current, "all:", Object.keys(viewport.cameras));
+      });
+    }
 
-    // ShapeDiver/Three.js uses Y-up coordinate system
-    // Top: camera above on Y+ axis, looking down
-    // Front: camera on Z+ axis, looking at model
-    // Left: camera on X- axis
-    const presets: Record<CameraPreset, { position: number[] }> = {
-      perspective: { position: defPos },
-      top:        { position: [tgt[0], tgt[1] + dist, tgt[2]] },
-      left:       { position: [tgt[0] - dist, tgt[1], tgt[2]] },
-      right:      { position: [tgt[0] + dist, tgt[1], tgt[2]] },
-      front:      { position: [tgt[0], tgt[1], tgt[2] + dist] },
-      back:       { position: [tgt[0], tgt[1], tgt[2] - dist] },
-    };
+    if (preset === "perspective") {
+      if (defaultCameraIdRef.current) {
+        viewport.assignCamera(defaultCameraIdRef.current);
+      }
+      return;
+    }
 
-    const p = presets[preset];
-    cam.position = p.position;
-    cam.target = tgt;
+    // Assign the orthographic camera for this direction
+    const camId = orthoCamerasRef.current[preset];
+    if (camId) {
+      viewport.assignCamera(camId);
+    }
   }, []);
 
   // AR mode — uses ShapeDiver's built-in AR support
