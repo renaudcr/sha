@@ -81,13 +81,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/* ── Section divider with ornamental flourish ── */
+/* ── Clean section divider ── */
 function Section({ title }: { title: string }) {
   return (
     <div className="section-divider field--full">
-      <span className="section-ornament">&#10040;</span>
       <span className="section-title">{title}</span>
-      <span className="section-ornament">&#10040;</span>
     </div>
   );
 }
@@ -240,7 +238,7 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         )}
 
         {/* ── Sécurité & Options ── */}
-        <Section title="S\u00E9curit\u00E9 & Options" />
+        <Section title="Sécurité & Options" />
 
         <div className="field field--full">
           <label className="field-label">Balustres intermédiaires</label>
