@@ -156,8 +156,8 @@ function RotationDial({ value, onChange }: { value: number; onChange: (v: number
     const rad = (a * Math.PI) / 180;
     const outerR = 46;
     const isCardinal = i === 0 || i === 3 || i === 6 || i === 9;
-    const innerR = isCardinal ? 38 : 40;
-    const labelR = isCardinal ? 31 : 34;
+    const innerR = isCardinal ? 37 : 40;
+    const labelR = isCardinal ? 28 : 34;
     return {
       x1: cx + innerR * Math.cos(rad), y1: cy + innerR * Math.sin(rad),
       x2: cx + outerR * Math.cos(rad), y2: cy + outerR * Math.sin(rad),
@@ -184,7 +184,7 @@ function RotationDial({ value, onChange }: { value: number; onChange: (v: number
           <g key={i}>
             <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="var(--ink-light)" strokeWidth={t.isCardinal ? "1.5" : "1"} />
             <text x={t.lx} y={t.ly} textAnchor="middle" dominantBaseline="central"
-              fontSize={t.isCardinal ? "7" : "5"} fill="var(--ink-mid)" fontFamily="var(--font)" fontWeight={t.isCardinal ? "bold" : "normal"}>{t.label}</text>
+              fontSize={t.isCardinal ? "9" : "5"} fill="var(--ink-mid)" fontFamily="var(--font)" fontWeight={t.isCardinal ? "bold" : "normal"}>{t.label}</text>
           </g>
         ))}
         {/* Center dot */}
