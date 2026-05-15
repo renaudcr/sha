@@ -316,7 +316,13 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
   const zoomOut = useCallback(() => zoomCamera(1.25), [zoomCamera]);
 
   const resetCamera = useCallback(() => {
-    const cam = viewportRef.current?.camera;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    // Switch back to default perspective camera
+    if (defaultCameraIdRef.current) {
+      viewport.assignCamera(defaultCameraIdRef.current);
+    }
+    const cam = viewport.camera;
     if (!cam) return;
     cam.position = cam.defaultPosition;
     cam.target = cam.defaultTarget;
