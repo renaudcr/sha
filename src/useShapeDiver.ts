@@ -308,23 +308,31 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
   }, []);
 
   // Camera preset views
-  type CameraPreset = "perspective" | "top" | "bottom" | "left" | "right" | "front" | "back";
+  type CameraPreset = "perspective" | "top" | "left" | "right" | "front" | "back";
 
   const setCameraView = useCallback((preset: CameraPreset) => {
     const cam = viewportRef.current?.camera;
     if (!cam) return;
 
     const tgt = cam.defaultTarget ?? [0, 0, 0];
-    const dist = 3000; // distance from target
+    const defPos = cam.defaultPosition ?? [0, 0, 0];
+    // Compute distance from default camera to target
+    const dx = defPos[0] - tgt[0], dy = defPos[1] - tgt[1], dz = defPos[2] - tgt[2];
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 3000;
 
+    console.log("[ShapeDiver] setCameraView:", preset, "defPos:", defPos, "target:", tgt, "dist:", dist);
+
+    // ShapeDiver/Three.js uses Y-up coordinate system
+    // Top: camera above on Y+ axis, looking down
+    // Front: camera on Z+ axis, looking at model
+    // Left: camera on X- axis
     const presets: Record<CameraPreset, { position: number[] }> = {
-      perspective: { position: cam.defaultPosition ?? [dist * 0.7, dist * 0.7, dist * 0.7] },
-      top:        { position: [tgt[0], tgt[1], tgt[2] + dist] },
-      bottom:     { position: [tgt[0], tgt[1], tgt[2] - dist] },
+      perspective: { position: defPos },
+      top:        { position: [tgt[0], tgt[1] + dist, tgt[2]] },
       left:       { position: [tgt[0] - dist, tgt[1], tgt[2]] },
       right:      { position: [tgt[0] + dist, tgt[1], tgt[2]] },
-      front:      { position: [tgt[0], tgt[1] - dist, tgt[2]] },
-      back:       { position: [tgt[0], tgt[1] + dist, tgt[2]] },
+      front:      { position: [tgt[0], tgt[1], tgt[2] + dist] },
+      back:       { position: [tgt[0], tgt[1], tgt[2] - dist] },
     };
 
     const p = presets[preset];
