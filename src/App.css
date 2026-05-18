@@ -150,6 +150,31 @@ body {
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
+/* ── Viewer preview overlay (hover-to-preview) ── */
+.viewer-preview-overlay {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  width: 240px;
+  height: 160px;
+  background: rgba(15, 5, 0, 0.8);
+  border: 2px solid rgba(184, 133, 48, 0.6);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+  animation: previewFadeIn 0.15s ease-out;
+  padding: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+.viewer-preview-overlay svg {
+  width: 100%;
+  height: 100%;
+}
+@keyframes previewFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
 /* ── Panel — aged parchment ──────────────────────────── */
 .panel {
   width: 420px;
@@ -455,6 +480,11 @@ body {
   display: none;
 }
 .preview-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
   display: flex;
   gap: 0;
   margin-top: 4px;
@@ -492,20 +522,6 @@ body {
   color: var(--ink);
   font-weight: bold;
   background: rgba(90, 56, 16, 0.08);
-}
-.preview-select-thumb {
-  width: 80px;
-  min-width: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  border-left: 1.5px solid rgba(90, 56, 16, 0.2);
-  background: rgba(237, 228, 192, 0.6);
-}
-.preview-select-thumb svg {
-  width: 100%;
-  height: auto;
 }
 
 /* ── Rotation dial (clock) ──────────────────────────── */

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import type { ReactNode } from "react";
 import { useShapeDiver, DEFAULT_CONFIG } from "./useShapeDiver";
 import type { ConfigState } from "./useShapeDiver";
 import FeaturesTab from "./FeaturesTab";
@@ -23,6 +24,7 @@ export default function App() {
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
   const [cameraMenuOpen, setCameraMenuOpen] = useState(false);
   const cameraMenuRef = useRef<HTMLDivElement>(null);
+  const [previewOverlay, setPreviewOverlay] = useState<ReactNode>(null);
 
   // Undo/redo history
   const [history, setHistory] = useState<ConfigState[]>([DEFAULT_CONFIG]);
@@ -166,6 +168,11 @@ export default function App() {
             </button>
           </div>
         )}
+        {previewOverlay && (
+          <div className="viewer-preview-overlay">
+            {previewOverlay}
+          </div>
+        )}
         {!ready && !error && (
           <div className="viewer-overlay">
             <span className="loader-text">Loading 3D model...</span>
@@ -201,7 +208,7 @@ export default function App() {
         {/* Tab content */}
         <div className="panel-body">
           {tab === "features" && (
-            <FeaturesTab config={config} onChange={handleConfigChange} paramChoices={paramChoices} />
+            <FeaturesTab config={config} onChange={handleConfigChange} paramChoices={paramChoices} onPreview={setPreviewOverlay} />
           )}
           {tab === "contact" && (
             <ContactTab onSubmit={(data) => submitContact(data as unknown as Record<string, string>)} onBack={goPrev} />

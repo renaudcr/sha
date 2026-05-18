@@ -156,9 +156,10 @@ interface Props {
   value: number;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: Option[];
+  onPreview?: (node: React.ReactNode) => void;
 }
 
-export default function PreviewSelect({ configKey, value, onChange, options }: Props) {
+export default function PreviewSelect({ configKey, value, onChange, options, onPreview }: Props) {
   const [open, setOpen] = useState(false);
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -167,16 +168,22 @@ export default function PreviewSelect({ configKey, value, onChange, options }: P
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        onPreview?.(null);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+  }, [open, onPreview]);
+
+  // Clear viewer overlay when dropdown closes
+  useEffect(() => {
+    if (!open) onPreview?.(null);
+  }, [open, onPreview]);
 
   const selectedLabel = options.find(o => String(o.value) === String(value))?.label || "";
   const previews = PREVIEWS[configKey];
-  const previewToShow = hoveredLabel ?? selectedLabel;
-  const previewSvg = previews?.[previewToShow] ?? noPreview;
 
   return (
     <div className="preview-select-wrap" ref={wrapRef}>
@@ -197,21 +204,26 @@ export default function PreviewSelect({ configKey, value, onChange, options }: P
                 key={opt.value}
                 type="button"
                 className={`preview-select-option${String(opt.value) === String(value) ? " preview-select-option--active" : ""}`}
-                onMouseEnter={() => setHoveredLabel(opt.label)}
-                onMouseLeave={() => setHoveredLabel(null)}
+                onMouseEnter={() => {
+                  setHoveredLabel(opt.label);
+                  const svg = previews?.[opt.label] ?? noPreview;
+                  onPreview?.(svg);
+                }}
+                onMouseLeave={() => {
+                  setHoveredLabel(null);
+                  onPreview?.(null);
+                }}
                 onClick={() => {
                   const fakeEvent = { target: { value: String(opt.value) } } as React.ChangeEvent<HTMLSelectElement>;
                   onChange(fakeEvent);
                   setOpen(false);
                   setHoveredLabel(null);
+                  onPreview?.(null);
                 }}
               >
                 {opt.label}
               </button>
             ))}
-          </div>
-          <div className="preview-select-thumb">
-            {previewSvg}
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ interface Props {
   config: ConfigState;
   onChange: (key: keyof ConfigState, value: number) => void;
   paramChoices: ParamChoices;
+  onPreview: (node: React.ReactNode) => void;
 }
 
 /* ── Custom number stepper with click-to-edit ── */
@@ -236,13 +237,14 @@ const PREVIEW_KEYS = new Set<string>([
 
 /* ── Dynamic select: renders choices from ShapeDiver when available, fallback otherwise ── */
 function DynSel({
-  configKey, value, onChange, paramChoices, fallback,
+  configKey, value, onChange, paramChoices, fallback, onPreview,
 }: {
   configKey: keyof ConfigState;
   value: number;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   paramChoices: ParamChoices;
   fallback: { value: number; label: string }[];
+  onPreview?: (node: React.ReactNode) => void;
 }) {
   const choices = paramChoices[configKey];
   const options: { value: number | string; label: string }[] = choices
@@ -256,6 +258,7 @@ function DynSel({
         value={value}
         onChange={onChange}
         options={options}
+        onPreview={onPreview}
       />
     );
   }
@@ -267,7 +270,7 @@ function DynSel({
   );
 }
 
-export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
+export default function FeaturesTab({ config, onChange, paramChoices, onPreview }: Props) {
   const sel = (key: keyof ConfigState) =>
     (e: React.ChangeEvent<HTMLSelectElement>) => onChange(key, Number(e.target.value));
   const num = (key: keyof ConfigState) => (v: number) => onChange(key, v);
@@ -291,12 +294,12 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         </Field>
 
         <Field label="Type de trémie">
-          <DynSel configKey="openingType" value={config.openingType} onChange={sel("openingType")} paramChoices={paramChoices}
+          <DynSel configKey="openingType" value={config.openingType} onChange={sel("openingType")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Carrée" }, { value: 1, label: "Ronde" }]} />
         </Field>
 
         <Field label="Sens de rotation">
-          <DynSel configKey="rotation" value={config.rotation} onChange={sel("rotation")} paramChoices={paramChoices}
+          <DynSel configKey="rotation" value={config.rotation} onChange={sel("rotation")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Horaire" }, { value: 1, label: "Anti-horaire" }]} />
         </Field>
 
@@ -309,12 +312,12 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         <Section title="Marches" />
 
         <Field label="Dessus de marches">
-          <DynSel configKey="treadTop" value={config.treadTop} onChange={sel("treadTop")} paramChoices={paramChoices}
+          <DynSel configKey="treadTop" value={config.treadTop} onChange={sel("treadTop")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Pleine" }, { value: 1, label: "Dentelle" }]} />
         </Field>
 
         <Field label="Contre-marches">
-          <DynSel configKey="risers" value={config.risers} onChange={sel("risers")} paramChoices={paramChoices}
+          <DynSel configKey="risers" value={config.risers} onChange={sel("risers")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Plein" }, { value: 1, label: "Ouvert" }]} />
         </Field>
 
@@ -322,32 +325,32 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         <Section title="Garde-corps" />
 
         <Field label="Main courante">
-          <DynSel configKey="handrail" value={config.handrail} onChange={sel("handrail")} paramChoices={paramChoices}
+          <DynSel configKey="handrail" value={config.handrail} onChange={sel("handrail")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Plate" }, { value: 1, label: "Ronde" }]} />
         </Field>
 
         <Field label="Garde-corps étage">
-          <DynSel configKey="floorRailing" value={config.floorRailing} onChange={sel("floorRailing")} paramChoices={paramChoices}
+          <DynSel configKey="floorRailing" value={config.floorRailing} onChange={sel("floorRailing")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Marche palière" }, { value: 1, label: "Tour de trémie" }]} />
         </Field>
 
         <Field label="Poteau de départ">
-          <DynSel configKey="startPost" value={config.startPost} onChange={sel("startPost")} paramChoices={paramChoices}
+          <DynSel configKey="startPost" value={config.startPost} onChange={sel("startPost")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </Field>
 
         <Field label="Poteau d'arrivée">
-          <DynSel configKey="endPost" value={config.endPost} onChange={sel("endPost")} paramChoices={paramChoices}
+          <DynSel configKey="endPost" value={config.endPost} onChange={sel("endPost")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </Field>
 
         <Field label="Crosse au départ">
-          <DynSel configKey="startNewel" value={config.startNewel} onChange={sel("startNewel")} paramChoices={paramChoices}
+          <DynSel configKey="startNewel" value={config.startNewel} onChange={sel("startNewel")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Courte" }, { value: 2, label: "Longue" }]} />
         </Field>
 
         <Field label="Crosse à l'arrivée">
-          <DynSel configKey="endNewel" value={config.endNewel} onChange={sel("endNewel")} paramChoices={paramChoices}
+          <DynSel configKey="endNewel" value={config.endNewel} onChange={sel("endNewel")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Courte" }, { value: 2, label: "Longue" }]} />
         </Field>
 
@@ -369,12 +372,12 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         <Section title="Sécurité & Options" />
 
         <Field label="Balustres intermédiaires">
-          <DynSel configKey="balusters" value={config.balusters} onChange={sel("balusters")} paramChoices={paramChoices}
+          <DynSel configKey="balusters" value={config.balusters} onChange={sel("balusters")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "0" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }, { value: 4, label: "4" }]} />
         </Field>
 
         <Field label="Plaque de répartition">
-          <DynSel configKey="distributionPlate" value={config.distributionPlate} onChange={sel("distributionPlate")} paramChoices={paramChoices}
+          <DynSel configKey="distributionPlate" value={config.distributionPlate} onChange={sel("distributionPlate")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </Field>
 
@@ -391,7 +394,7 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         )}
 
         <Field label="Marches sans garde-corps">
-          <DynSel configKey="treadsNoRail" value={config.treadsNoRail} onChange={sel("treadsNoRail")} paramChoices={paramChoices}
+          <DynSel configKey="treadsNoRail" value={config.treadsNoRail} onChange={sel("treadsNoRail")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Aucune" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }]} />
         </Field>
 
