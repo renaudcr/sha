@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import type { ConfigState } from "./useShapeDiver";
 import type { ParamChoices } from "./useShapeDiver";
+import PreviewSelect from "./PreviewSelect";
 
 interface Props {
   config: ConfigState;
@@ -211,6 +212,13 @@ function calcGap(diameter: number, balusters: number): number {
   return Math.round(circumference / sections);
 }
 
+/* Keys that have preview thumbnails */
+const PREVIEW_KEYS = new Set<string>([
+  "treadTop", "risers", "handrail", "floorRailing",
+  "startPost", "endPost", "startNewel", "endNewel",
+  "startBall", "endBall",
+]);
+
 /* ── Dynamic select: renders choices from ShapeDiver when available, fallback otherwise ── */
 function DynSel({
   configKey, value, onChange, paramChoices, fallback,
@@ -222,12 +230,24 @@ function DynSel({
   fallback: { value: number; label: string }[];
 }) {
   const choices = paramChoices[configKey];
+  const options: { value: number | string; label: string }[] = choices
+    ? choices.map(c => ({ value: c.value, label: c.label }))
+    : fallback;
+
+  if (PREVIEW_KEYS.has(configKey)) {
+    return (
+      <PreviewSelect
+        configKey={configKey}
+        value={value}
+        onChange={onChange}
+        options={options}
+      />
+    );
+  }
+
   return (
     <Sel value={value} onChange={onChange}>
-      {choices
-        ? choices.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)
-        : fallback.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)
-      }
+      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </Sel>
   );
 }
@@ -340,11 +360,11 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
           {nfViolation && (
             <div className="warning-box">
               <span className="warning-icon">⚠</span>
-              Aucun balustre intermédiaire signifie un écart de {gap} mm
+              Aucun balustre intermédiaire signifie un écart de ... mm
               <span className="warning-icon">⚠</span>
               <br />
               <span className="warning-icon">⚠</span>
-              La norme publique NF P01-012 n'est pas respectée (max 110 mm)
+              La norme NF P01-012 du 6 Juin 2024 n'est pas respectée
               <span className="warning-icon">⚠</span>
             </div>
           )}

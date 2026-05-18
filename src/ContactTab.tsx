@@ -77,41 +77,41 @@ export default function ContactTab({ onSubmit, onBack }: Props) {
     <div className="tab-content">
       <form onSubmit={handleSubmit} noValidate>
 
-        <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
+        <div className="field" style={{ marginBottom: 12 }}>
           <label className="field-label">NOM Prénom*</label>
           <input className={`input${errors.name ? " input-error" : ""}`}
             type="text" value={data.name} onChange={set("name")} />
           {errors.name && <span className="error-msg">{errors.name}</span>}
         </div>
 
-        <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
-          <label className="field-label">Adresse postale</label>
-          <input className="input" type="text"
-            value={data.postalAddress} onChange={set("postalAddress")} />
+        <div className="field" style={{ marginBottom: 12 }}>
+          <label className="field-label">Adresse mail*</label>
+          <input className={`input${errors.email ? " input-error" : ""}`}
+            type="email" value={data.email} onChange={set("email")} />
+          {errors.email && <span className="error-msg">{errors.email}</span>}
         </div>
 
-        <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
+        <div className="field" style={{ marginBottom: 12 }}>
           <label className="field-label">N° de téléphone*</label>
           <input className={`input${errors.phone ? " input-error" : ""}`}
             type="tel" value={data.phone} onChange={set("phone")} />
           {errors.phone && <span className="error-msg">{errors.phone}</span>}
         </div>
 
-        <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
-          <label className="field-label">E-mail*</label>
-          <input className={`input${errors.email ? " input-error" : ""}`}
-            type="email" value={data.email} onChange={set("email")} />
-          {errors.email && <span className="error-msg">{errors.email}</span>}
+        <div className="field" style={{ marginBottom: 12 }}>
+          <label className="field-label">Adresse du chantier</label>
+          <input className="input" type="text"
+            value={data.postalAddress} onChange={set("postalAddress")} />
         </div>
 
-        <div className="field" style={{ marginBottom: 10, maxWidth: "62%" }}>
+        <div className="field" style={{ marginBottom: 12 }}>
           <label className="field-label">CP – Ville*</label>
           <input className={`input${errors.postalCity ? " input-error" : ""}`}
             type="text" value={data.postalCity} onChange={set("postalCity")} />
           {errors.postalCity && <span className="error-msg">{errors.postalCity}</span>}
         </div>
 
-        <div className="field" style={{ marginBottom: 6 }}>
+        <div className="field" style={{ marginBottom: 8 }}>
           <label className="field-label">Message*</label>
           <textarea className={`textarea${errors.message ? " input-error" : ""}`}
             rows={7} value={data.message} onChange={set("message")} />
