@@ -4,6 +4,14 @@ import type { ConfigState } from "./useShapeDiver";
 import FeaturesTab from "./FeaturesTab";
 import ContactTab from "./ContactTab";
 import "./App.css";
+import input1Url from "./assets/input1.png";
+import input2Url from "./assets/input2.png";
+import contactFormUrl from "./assets/contactform.png";
+import messageFormUrl from "./assets/messageform.png";
+import envoyerUrl from "./assets/envolyeer.png";
+import primaryBgUrl from "./assets/primary-background.png";
+import nextUrl from "./assets/next.png";
+import previousUrl from "./assets/previous.png";
 
 type Tab = "features" | "contact";
 const TABS: Tab[] = ["features", "contact"];
@@ -105,7 +113,7 @@ export default function App() {
   };
 
   return (
-    <div className="app">
+    <div className="app" style={{ "--img-input1": `url(${input1Url})`, "--img-input2": `url(${input2Url})`, "--img-contactform": `url(${contactFormUrl})`, "--img-messageform": `url(${messageFormUrl})`, "--img-envoyer": `url(${envoyerUrl})`, "--img-primary-bg": `url(${primaryBgUrl})`, "--img-next": `url(${nextUrl})`, "--img-previous": `url(${previousUrl})` } as React.CSSProperties}>
       {/* 3D Viewer */}
       <div className="viewer-wrapper">
         <canvas ref={canvasRef} className="viewer-canvas" />
@@ -204,21 +212,17 @@ export default function App() {
         {tab === "features" && (
           <div className="nav-bar">
             <button
-              className="nav-btn nav-btn--circle"
+              className="nav-btn nav-btn--circle nav-btn--prev"
               onClick={goPrev}
               disabled={tabIndex === 0}
               aria-label="Précédent"
-            >
-              &#8249;
-            </button>
+            />
             <button
-              className="nav-btn nav-btn--circle"
+              className="nav-btn nav-btn--circle nav-btn--next"
               onClick={goNext}
               disabled={tabIndex === TABS.length - 1}
               aria-label="Suivant"
-            >
-              &#8250;
-            </button>
+            />
           </div>
         )}
 

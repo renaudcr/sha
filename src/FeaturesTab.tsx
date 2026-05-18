@@ -47,10 +47,25 @@ function Stepper({
             onKeyDown={handleKey}
           />
         ) : (
-          <>{value}</>
+          <>{value}{unit ? ` ${unit}` : ""}</>
         )}
       </div>
-      {unit && <span className="stepper-unit">{unit}</span>}
+      <div className="stepper-arrows">
+        <button
+          className="stepper-arrow"
+          type="button"
+          onClick={() => { if (value < max) onChange(value + 1); }}
+          disabled={value >= max}
+          aria-label="+"
+        />
+        <button
+          className="stepper-arrow"
+          type="button"
+          onClick={() => { if (value > min) onChange(value - 1); }}
+          disabled={value <= min}
+          aria-label="-"
+        />
+      </div>
     </div>
   );
 }
@@ -268,11 +283,11 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         <Section title="Dimensions" />
 
         <Field label="Hauteur à monter">
-          <Stepper value={config.height} min={1800} max={4500} unit="mm" onChange={num("height")} />
+          <Stepper value={config.height} min={1800} max={4500}  onChange={num("height")} />
         </Field>
 
         <Field label="Diamètre colimaçon">
-          <Stepper value={config.diameter} min={1000} max={2000} unit="mm" onChange={num("diameter")} />
+          <Stepper value={config.diameter} min={1000} max={2000}  onChange={num("diameter")} />
         </Field>
 
         <Field label="Type de trémie">
@@ -353,34 +368,32 @@ export default function FeaturesTab({ config, onChange, paramChoices }: Props) {
         {/* ── Sécurité & Options ── */}
         <Section title="Sécurité & Options" />
 
-        <div className="field field--full">
-          <label className="field-label">Balustres intermédiaires</label>
+        <Field label="Balustres intermédiaires">
           <DynSel configKey="balusters" value={config.balusters} onChange={sel("balusters")} paramChoices={paramChoices}
             fallback={[{ value: 0, label: "0" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }, { value: 4, label: "4" }]} />
-          {nfViolation && (
-            <div className="warning-box">
-              <span className="warning-icon">⚠</span>
-              Aucun balustre intermédiaire signifie un écart de ... mm
-              <span className="warning-icon">⚠</span>
-              <br />
-              <span className="warning-icon">⚠</span>
-              La norme NF P01-012 du 6 Juin 2024 n'est pas respectée
-              <span className="warning-icon">⚠</span>
-            </div>
-          )}
-        </div>
+        </Field>
 
-        <div className="field field--full">
-          <label className="field-label">Plaque de répartition de charge</label>
+        <Field label="Plaque de répartition">
           <DynSel configKey="distributionPlate" value={config.distributionPlate} onChange={sel("distributionPlate")} paramChoices={paramChoices}
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
-        </div>
+        </Field>
 
-        <div className="field field--full">
-          <label className="field-label">Marches sans garde-corps</label>
+        {nfViolation && (
+          <div className="field--full warning-box">
+            <span className="warning-icon">⚠</span>
+            Aucun balustre intermédiaire signifie un écart de ... mm
+            <span className="warning-icon">⚠</span>
+            <br />
+            <span className="warning-icon">⚠</span>
+            La norme NF P01-012 du 6 Juin 2024 n'est pas respectée
+            <span className="warning-icon">⚠</span>
+          </div>
+        )}
+
+        <Field label="Marches sans garde-corps">
           <DynSel configKey="treadsNoRail" value={config.treadsNoRail} onChange={sel("treadsNoRail")} paramChoices={paramChoices}
             fallback={[{ value: 0, label: "Aucune" }, { value: 1, label: "1" }, { value: 2, label: "2" }, { value: 3, label: "3" }]} />
-        </div>
+        </Field>
 
       </div>
     </div>
