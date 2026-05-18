@@ -161,7 +161,6 @@ interface Props {
 
 export default function PreviewSelect({ configKey, value, onChange, options, onPreview }: Props) {
   const [open, setOpen] = useState(false);
-  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -205,19 +204,16 @@ export default function PreviewSelect({ configKey, value, onChange, options, onP
                 type="button"
                 className={`preview-select-option${String(opt.value) === String(value) ? " preview-select-option--active" : ""}`}
                 onMouseEnter={() => {
-                  setHoveredLabel(opt.label);
                   const svg = previews?.[opt.label] ?? noPreview;
                   onPreview?.(svg);
                 }}
                 onMouseLeave={() => {
-                  setHoveredLabel(null);
                   onPreview?.(null);
                 }}
                 onClick={() => {
                   const fakeEvent = { target: { value: String(opt.value) } } as React.ChangeEvent<HTMLSelectElement>;
                   onChange(fakeEvent);
                   setOpen(false);
-                  setHoveredLabel(null);
                   onPreview?.(null);
                 }}
               >
