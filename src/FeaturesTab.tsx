@@ -365,17 +365,22 @@ export default function FeaturesTab({ config, onChange, paramChoices, onPreview 
             fallback={[{ value: 0, label: "Sans" }, { value: 1, label: "Avec" }]} />
         </Field>
 
-        {nfViolation && (
-          <div className="field--full warning-box">
-            <span className="warning-icon">⚠</span>
-            Aucun balustre intermédiaire signifie un écart de {gap} mm
-            <span className="warning-icon">⚠</span>
-            <br />
-            <span className="warning-icon">⚠</span>
-            La norme NF P01-012 du 6 Juin 2024 n'est pas respectée
-            <span className="warning-icon">⚠</span>
-          </div>
-        )}
+        {(() => {
+          const countLabel = ["Aucun", "Un", "Deux", "Trois", "Quatre"][config.balusters] ?? String(config.balusters);
+          const verb = config.balusters <= 1 ? "signifie" : "signifient";
+          return (
+            <div className={`field--full warning-box${nfViolation ? "" : " warning-box--ok"}`}>
+              {nfViolation && <span className="warning-icon">⚠ </span>}
+              {countLabel} balustre{config.balusters > 1 ? "s" : ""} intermédiaire{config.balusters > 1 ? "s" : ""} {verb} un écart de {gap} mm
+              {nfViolation && <span className="warning-icon"> ⚠</span>}
+              <br />
+              {nfViolation
+                ? <><span className="warning-icon">⚠ </span>La norme NF P01-012 du 6 Juin 2024 n'est pas respectée<span className="warning-icon"> ⚠</span></>
+                : <>↳ La norme NF P01-012 du 6 Juin 2024 est respectée</>
+              }
+            </div>
+          );
+        })()}
 
         <Field label="Marches sans garde-corps">
           <DynSel configKey="treadsNoRail" value={config.treadsNoRail} onChange={sel("treadsNoRail")} paramChoices={paramChoices} onPreview={onPreview}

@@ -637,6 +637,12 @@ body {
   border: 1.5px solid rgba(180, 100, 0, 0.35);
   border-radius: 4px;
 }
+.warning-box--ok {
+  color: #2a5a1a;
+  background: rgba(60, 140, 40, 0.1);
+  border-color: rgba(60, 140, 40, 0.35);
+  font-weight: normal;
+}
 .warning-icon {
   font-size: 1rem;
   vertical-align: middle;
