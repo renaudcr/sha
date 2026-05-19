@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import type { ConfigState } from "./useShapeDiver";
 import type { ParamChoices } from "./useShapeDiver";
 import PreviewSelect from "./PreviewSelect";
@@ -10,7 +10,7 @@ interface Props {
   onPreview: (node: React.ReactNode) => void;
 }
 
-/* ── Custom number stepper with click-to-edit ── */
+/* ── Custom number stepper (click value to edit, arrows are decorative) ── */
 function Stepper({
   value, min, max, unit, onChange,
 }: {
@@ -18,8 +18,8 @@ function Stepper({
   unit?: string;
   onChange: (v: number) => void;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState("");
 
   const startEdit = () => { setDraft(String(value)); setEditing(true); };
   const commitEdit = () => {
@@ -50,22 +50,6 @@ function Stepper({
         ) : (
           <>{value}{unit ? ` ${unit}` : ""}</>
         )}
-      </div>
-      <div className="stepper-arrows">
-        <button
-          className="stepper-arrow"
-          type="button"
-          onClick={() => { if (value < max) onChange(value + 1); }}
-          disabled={value >= max}
-          aria-label="+"
-        />
-        <button
-          className="stepper-arrow"
-          type="button"
-          onClick={() => { if (value > min) onChange(value - 1); }}
-          disabled={value <= min}
-          aria-label="-"
-        />
       </div>
     </div>
   );
@@ -384,7 +368,7 @@ export default function FeaturesTab({ config, onChange, paramChoices, onPreview 
         {nfViolation && (
           <div className="field--full warning-box">
             <span className="warning-icon">⚠</span>
-            Aucun balustre intermédiaire signifie un écart de ... mm
+            Aucun balustre intermédiaire signifie un écart de {gap} mm
             <span className="warning-icon">⚠</span>
             <br />
             <span className="warning-icon">⚠</span>

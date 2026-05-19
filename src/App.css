@@ -302,7 +302,7 @@ body {
 }
 
 /* ── Field ──────────────────────────────────────────── */
-.field { display: flex; flex-direction: column; }
+.field { display: flex; flex-direction: column; justify-content: flex-end; }
 
 .field-label {
   font-family: var(--font);
