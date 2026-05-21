@@ -13,7 +13,10 @@
   --font: "Special Elite", "Courier New", monospace;
   --input-bg:  #ede4c0;
   --border:    #5a3810;
+  --panel-bg:  transparent;
+  --panel-text: var(--ink);
 }
+
 
 body {
   font-family: var(--font);
@@ -144,11 +147,32 @@ body {
 }
 .viewer-error { background: rgba(50,5,0,0.85); }
 .loader-text {
-  font-family: var(--font); font-size: 1rem;
-  letter-spacing: 0.1em;
-  animation: pulse 1.5s ease-in-out infinite;
+  font-family: var(--font); font-size: 0.95rem;
+  letter-spacing: 0.08em; color: #e8d090;
+  animation: pulse 1.8s ease-in-out infinite;
 }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes pulse { 0%,100%{opacity:0.9} 50%{opacity:0.35} }
+
+/* ── Loading skeleton — staircase silhouette ── */
+.skeleton-stair {
+  display: flex; align-items: flex-end; gap: 6px;
+  margin-bottom: 20px;
+}
+.skeleton-step {
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(139,69,19,0.2) 0%, rgba(232,208,144,0.5) 50%, rgba(139,69,19,0.2) 100%);
+  background-size: 400% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+.skeleton-step--1 { width: 18px; height: 18px; animation-delay: 0s; }
+.skeleton-step--2 { width: 18px; height: 36px; animation-delay: 0.15s; }
+.skeleton-step--3 { width: 18px; height: 54px; animation-delay: 0.3s; }
+.skeleton-step--4 { width: 18px; height: 72px; animation-delay: 0.45s; }
+.skeleton-step--5 { width: 18px; height: 90px; animation-delay: 0.6s; }
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
 
 /* ── Viewer preview overlay (hover-to-preview) ── */
 .viewer-preview-overlay {
@@ -625,6 +649,46 @@ body {
 }
 
 /* ── Warning ────────────────────────────────────────── */
+/* ── Wall card ──────────────────────────────────────── */
+.wall-card {
+  border: 1px solid rgba(90,56,16,0.3);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(90,56,16,0.04);
+}
+.wall-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wall-card-header .field-label {
+  margin-bottom: 0;
+  flex: 1;
+}
+.wall-card-header .select-wrap {
+  min-width: 90px;
+}
+.wall-card-dirs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(90,56,16,0.15);
+}
+.wall-dir-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.wall-dir-item .field-label {
+  font-size: 0.78rem;
+  margin-bottom: 0;
+}
+
 .warning-box {
   color: #8b3a00;
   font-size: 0.78rem;
@@ -793,3 +857,109 @@ body {
     height: 14px;
   }
 }
+
+/* ── Comparison modal ───────────────────────────────── */
+.compare-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.compare-modal {
+  background: #ede4c0;
+  border: 2px solid #5a3810;
+  border-radius: 8px;
+  padding: 20px;
+  width: 96%; max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+  font-family: var(--font);
+  color: var(--ink);
+}
+.compare-header {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 1rem; font-weight: bold;
+}
+.compare-close {
+  background: none; border: none; font-size: 1.4rem;
+  cursor: pointer; color: var(--ink-mid); line-height: 1;
+}
+/* Screenshot comparison panels */
+.compare-screenshots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.compare-shot-panel {
+  display: flex; flex-direction: column; gap: 8px;
+  border: 1px solid rgba(90,56,16,0.3);
+  border-radius: 6px;
+  padding: 10px;
+  background: rgba(90,56,16,0.04);
+}
+.compare-shot-label {
+  font-size: 0.78rem; font-weight: bold; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--ink-light);
+}
+.compare-shot-img {
+  position: relative;
+  aspect-ratio: 4/3;
+  background: rgba(90,56,16,0.08);
+  border: 1px solid rgba(90,56,16,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.compare-shot-img img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.compare-shot-empty {
+  font-size: 0.75rem; color: var(--ink-mid); text-align: center; padding: 8px;
+}
+.compare-shot-spinner {
+  position: absolute; inset: 0;
+  background: rgba(237,228,192,0.7);
+  display: flex; align-items: center; justify-content: center;
+}
+.compare-shot-actions {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.compare-save-btn {
+  flex: 1; padding: 8px 12px;
+  background: var(--input-bg); border: 1.5px solid var(--border);
+  border-radius: 4px; font-family: var(--font);
+  font-size: 0.78rem; cursor: pointer; color: var(--ink);
+  transition: background 0.15s;
+}
+.compare-save-btn:hover { background: rgba(90,56,16,0.15); }
+.compare-table-wrap { overflow-y: auto; flex: 1; }
+.compare-table {
+  width: 100%; border-collapse: collapse; font-size: 0.78rem;
+}
+.compare-table th, .compare-table td {
+  padding: 5px 8px; border: 1px solid rgba(90,56,16,0.2);
+  text-align: left;
+}
+.compare-table th { background: rgba(90,56,16,0.1); font-weight: bold; }
+.compare-diff td { background: rgba(180,120,0,0.12); font-weight: bold; }
+.compare-load-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.compare-load-btn {
+  flex: 1; padding: 6px 12px;
+  background: rgba(90,56,16,0.12); border: 1.5px solid var(--border);
+  border-radius: 4px; font-family: var(--font);
+  font-size: 0.75rem; cursor: pointer; color: var(--ink-mid);
+  transition: background 0.15s;
+}
+.compare-load-btn:hover { background: rgba(90,56,16,0.25); color: var(--ink); }
+.compare-hint {
+  font-size: 0.82rem; color: var(--ink-mid); text-align: center; padding: 16px 0;
+}
+
+/* ── Dark mode — viewer only ─────────────────────────── */
+.dark-mode .viewer-wrapper { background: #1a0a00; }
+.dark-mode .viewer-toolbar { background: rgba(20,10,0,0.95); }
+.dark-mode .viewer-toolbar button { color: #c8a860; }
+.dark-mode .toolbar-dropdown { background: rgba(20,10,0,0.97); border-color: rgba(139,96,48,0.4); }
+.dark-mode .toolbar-dropdown button { color: var(--ink-mid); }
