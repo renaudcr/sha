@@ -2,6 +2,38 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import { useShapeDiver, DEFAULT_CONFIG } from "./useShapeDiver";
 import type { ConfigState } from "./useShapeDiver";
+
+const CONFIG_LABELS: Record<keyof ConfigState, string> = {
+  height: "Hauteur à monter",
+  diameter: "Diamètre colimaçon",
+  openingType: "Type de trémie",
+  rotation: "Sens de rotation",
+  treadTop: "Dessus de marches",
+  risers: "Contre-marches",
+  handrail: "Main courante",
+  floorRailing: "Garde-corps étage",
+  startPost: "Poteau de départ",
+  endPost: "Poteau d'arrivée",
+  startNewel: "Crosse au départ",
+  endNewel: "Crosse à l'arrivée",
+  startBall: "Boule au départ",
+  endBall: "Boule à l'arrivée",
+  stairRotation: "Rotation escalier",
+  balusters: "Balustres intermédiaires",
+  treadsNoRail: "Marches sans garde-corps",
+  distributionPlate: "Plaque de répartition",
+  finition: "Finition",
+  wallTop: "Murs trémie (haut)",
+  wallTopMidi: "↑ Midi",
+  wallTop3h: "↑ 3h",
+  wallTop6h: "↑ 6h",
+  wallTop9h: "↑ 9h",
+  wallBottom: "Murs trémie (bas)",
+  wallBottomMidi: "↓ Midi",
+  wallBottom3h: "↓ 3h",
+  wallBottom6h: "↓ 6h",
+  wallBottom9h: "↓ 9h",
+};
 import FeaturesTab from "./FeaturesTab";
 import ContactTab from "./ContactTab";
 import "./App.css";
@@ -19,12 +51,26 @@ const TABS: Tab[] = ["features", "contact"];
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot, setCameraView, startAR } = useShapeDiver(canvasRef);
+  const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot, captureScreenshot, setViewerBackground, setCameraView, startAR } = useShapeDiver(canvasRef);
   const [tab, setTab] = useState<Tab>("features");
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
   const [cameraMenuOpen, setCameraMenuOpen] = useState(false);
   const cameraMenuRef = useRef<HTMLDivElement>(null);
   const [previewOverlay, setPreviewOverlay] = useState<ReactNode>(null);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "1");
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", darkMode ? "1" : "0");
+    setViewerBackground(darkMode ? "#1a0a00" : "#f5f0e0");
+  }, [darkMode, setViewerBackground]);
+
+  // Comparison view
+  const [configA, setConfigA] = useState<ConfigState | null>(null);
+  const [configB, setConfigB] = useState<ConfigState | null>(null);
+  const [screenshotA, setScreenshotA] = useState<string | null>(null);
+  const [screenshotB, setScreenshotB] = useState<string | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [capturing, setCapturing] = useState<"A" | "B" | null>(null);
 
   // Undo/redo history
   const [history, setHistory] = useState<ConfigState[]>([DEFAULT_CONFIG]);
@@ -39,6 +85,18 @@ export default function App() {
       updateParam(key as keyof ConfigState, val);
     });
   }, [updateParam]);
+
+  // Load a config then capture screenshot after model updates
+  const captureConfig = useCallback(async (cfg: ConfigState, slot: "A" | "B") => {
+    setCapturing(slot);
+    applyConfig(cfg);
+    if (slot === "A") setConfigA({ ...cfg }); else setConfigB({ ...cfg });
+    // Wait for ShapeDiver to finish rendering
+    await new Promise(r => setTimeout(r, 2500));
+    const url = captureScreenshot();
+    if (slot === "A") setScreenshotA(url); else setScreenshotB(url);
+    setCapturing(null);
+  }, [applyConfig, captureScreenshot]);
 
   // Sync param changes to ShapeDiver
   const handleConfigChange = (key: keyof ConfigState, value: number) => {
@@ -97,10 +155,13 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handler);
   }, [cameraMenuOpen]);
 
-  // On ready, push all defaults to the model
+  // On ready, push all defaults to the model — skip wall/environment params
+  // (those are Bool params with meaningful model defaults we don't want to override)
+  const SKIP_ON_INIT = new Set(["wallTop", "wallTopMidi", "wallTop3h", "wallTop6h", "wallTop9h", "wallBottom", "wallBottomMidi", "wallBottom3h", "wallBottom6h", "wallBottom9h"]);
   useEffect(() => {
     if (!ready) return;
     Object.entries(config).forEach(([key, val]) => {
+      if (SKIP_ON_INIT.has(key)) return;
       updateParam(key as keyof ConfigState, val);
     });
   }, [ready]);
@@ -115,7 +176,7 @@ export default function App() {
   };
 
   return (
-    <div className="app" style={{ "--img-input1": `url(${input1Url})`, "--img-input2": `url(${input2Url})`, "--img-contactform": `url(${contactFormUrl})`, "--img-messageform": `url(${messageFormUrl})`, "--img-envoyer": `url(${envoyerUrl})`, "--img-primary-bg": `url(${primaryBgUrl})`, "--img-next": `url(${nextUrl})`, "--img-previous": `url(${previousUrl})` } as React.CSSProperties}>
+    <div className={`app${darkMode ? " dark-mode" : ""}`} style={{ "--img-input1": `url(${input1Url})`, "--img-input2": `url(${input2Url})`, "--img-contactform": `url(${contactFormUrl})`, "--img-messageform": `url(${messageFormUrl})`, "--img-envoyer": `url(${envoyerUrl})`, "--img-primary-bg": `url(${primaryBgUrl})`, "--img-next": `url(${nextUrl})`, "--img-previous": `url(${previousUrl})` } as React.CSSProperties}>
       {/* 3D Viewer */}
       <div className="viewer-wrapper">
         <canvas ref={canvasRef} className="viewer-canvas" />
@@ -166,6 +227,18 @@ export default function App() {
             <button onClick={resetCamera} title="Recentrer la vue">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
             </button>
+            <span className="toolbar-divider" />
+            {/* Dark mode toggle */}
+            <button onClick={() => setDarkMode(v => !v)} title={darkMode ? "Mode clair" : "Mode sombre"}>
+              {darkMode
+                ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              }
+            </button>
+            {/* Comparison view */}
+            <button onClick={() => setCompareOpen(v => !v)} title="Comparer deux configurations">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>
+            </button>
           </div>
         )}
         {previewOverlay && (
@@ -175,7 +248,14 @@ export default function App() {
         )}
         {!ready && !error && (
           <div className="viewer-overlay">
-            <span className="loader-text">Loading 3D model...</span>
+            <div className="skeleton-stair">
+              <div className="skeleton-step skeleton-step--1" />
+              <div className="skeleton-step skeleton-step--2" />
+              <div className="skeleton-step skeleton-step--3" />
+              <div className="skeleton-step skeleton-step--4" />
+              <div className="skeleton-step skeleton-step--5" />
+            </div>
+            <span className="loader-text">Chargement en cours...</span>
           </div>
         )}
         {error && (
@@ -238,6 +318,83 @@ export default function App() {
           Dessin non-contractuel. En effet, certains éléments techniques comme la visserie, entre autres, n'apparaissent pas.
         </footer>
       </div>
+
+      {/* Comparison modal */}
+      {compareOpen && (
+        <div className="compare-overlay" onClick={(e) => { if (e.target === e.currentTarget) setCompareOpen(false); }}>
+          <div className="compare-modal">
+            <div className="compare-header">
+              <span>Comparaison</span>
+              <button className="compare-close" onClick={() => setCompareOpen(false)}>×</button>
+            </div>
+
+            {/* Screenshot panels */}
+            <div className="compare-screenshots">
+              {(["A", "B"] as const).map(slot => {
+                const cfg = slot === "A" ? configA : configB;
+                const shot = slot === "A" ? screenshotA : screenshotB;
+                const isCapturing = capturing === slot;
+                return (
+                  <div key={slot} className="compare-shot-panel">
+                    <div className="compare-shot-label">Config {slot}</div>
+                    <div className="compare-shot-img">
+                      {shot
+                        ? <img src={shot} alt={`Config ${slot}`} />
+                        : <span className="compare-shot-empty">{isCapturing ? "Capture en cours…" : "Aucune capture"}</span>
+                      }
+                      {isCapturing && <div className="compare-shot-spinner" />}
+                    </div>
+                    <div className="compare-shot-actions">
+                      <button className="compare-save-btn" onClick={() => captureConfig({ ...config }, slot)} disabled={!!capturing}>
+                        {isCapturing ? "…" : `Capturer config ${slot} (état actuel)`}
+                      </button>
+                      {cfg && (
+                        <button className="compare-load-btn" onClick={() => { setConfig(cfg); applyConfig(cfg); setCompareOpen(false); }}>
+                          ← Charger Config {slot}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Diff table */}
+            {configA && configB && (
+              <div className="compare-table-wrap">
+                <table className="compare-table">
+                  <thead>
+                    <tr><th>Paramètre</th><th>Config A</th><th>Config B</th></tr>
+                  </thead>
+                  <tbody>
+                    {(Object.keys(configA) as (keyof ConfigState)[])
+                      .filter(key => configA[key] !== configB![key])
+                      .map(key => (
+                        <tr key={key} className="compare-diff">
+                          <td>{CONFIG_LABELS[key] ?? key}</td>
+                          <td>{String(configA[key])}</td>
+                          <td>{String(configB![key])}</td>
+                        </tr>
+                      ))}
+                    {(Object.keys(configA) as (keyof ConfigState)[])
+                      .filter(key => configA[key] === configB![key])
+                      .map(key => (
+                        <tr key={key}>
+                          <td>{CONFIG_LABELS[key] ?? key}</td>
+                          <td>{String(configA[key])}</td>
+                          <td>{String(configB![key])}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {(!configA || !configB) && (
+              <p className="compare-hint">Capturez deux configurations pour les comparer.</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
