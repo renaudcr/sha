@@ -250,8 +250,10 @@ export default function App() {
         )}
         {!ready && !error && (
           <div className="viewer-overlay">
-            <img src={logoUrl} alt="Renaud Créations" className="loader-logo" />
-            <span className="loader-text">Chargement en cours...</span>
+            <div className="loader-center">
+              <img src={logoUrl} alt="Renaud Créations" className="loader-logo" />
+              <span className="loader-text">Chargement en cours...</span>
+            </div>
           </div>
         )}
         {error && (
