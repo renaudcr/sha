@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, useCallback } from "react";
-import type { ReactNode } from "react";
 import { useShapeDiver, DEFAULT_CONFIG } from "./useShapeDiver";
 import type { ConfigState } from "./useShapeDiver";
 
@@ -58,13 +57,12 @@ export default function App() {
   const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
   const [cameraMenuOpen, setCameraMenuOpen] = useState(false);
   const cameraMenuRef = useRef<HTMLDivElement>(null);
-  const [previewOverlay, setPreviewOverlay] = useState<ReactNode>(null);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "1");
 
   useEffect(() => {
     localStorage.setItem("darkMode", darkMode ? "1" : "0");
-    setViewerBackground(darkMode ? "#1a0a00" : "#f5f0e0");
-  }, [darkMode, setViewerBackground]);
+    setViewerBackground(darkMode ? "#1a0a00" : "#f5f0e0", darkMode);
+  }, [darkMode, ready, setViewerBackground]);
 
   // Comparison view
   const [configA, setConfigA] = useState<ConfigState | null>(null);
@@ -243,11 +241,6 @@ export default function App() {
             </button>
           </div>
         )}
-        {previewOverlay && (
-          <div className="viewer-preview-overlay">
-            {previewOverlay}
-          </div>
-        )}
         {!ready && !error && (
           <div className="viewer-overlay">
             <div className="loader-center">
@@ -286,7 +279,7 @@ export default function App() {
         {/* Tab content */}
         <div className="panel-body">
           {tab === "features" && (
-            <FeaturesTab config={config} onChange={handleConfigChange} paramChoices={paramChoices} onPreview={setPreviewOverlay} />
+            <FeaturesTab config={config} onChange={handleConfigChange} paramChoices={paramChoices} />
           )}
           {tab === "contact" && (
             <ContactTab onSubmit={(data) => submitContact(data as unknown as Record<string, string>)} onBack={goPrev} />

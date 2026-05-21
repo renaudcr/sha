@@ -34,13 +34,13 @@ body {
 }
 
 /* ── Hide ShapeDiver branding ────────────────────────── */
-.viewer-wrapper div:not(.viewer-toolbar):not(.viewer-overlay):not(.viewer-error):not(.viewer-preview-overlay) > img[src*="shapediver"],
-.viewer-wrapper div:not(.viewer-toolbar):not(.viewer-overlay):not(.viewer-error):not(.viewer-preview-overlay) > a[href*="shapediver"],
+.viewer-wrapper div:not(.viewer-toolbar):not(.viewer-overlay):not(.viewer-error) > img[src*="shapediver"],
+.viewer-wrapper div:not(.viewer-toolbar):not(.viewer-overlay):not(.viewer-error) > a[href*="shapediver"],
 .viewer-wrapper [class*="sdv-"],
 .viewer-wrapper [id*="sdv-"],
 .viewer-wrapper [class*="shapediver-branding"],
 .viewer-wrapper [id*="shapediver-branding"],
-.viewer-wrapper > div:not(.viewer-toolbar):not(.viewer-overlay):not(.viewer-error):not(.viewer-preview-overlay) > div:not([class]) {
+.viewer-wrapper > div:not(.viewer-toolbar):not(.viewer-overlay):not(.viewer-error) > div:not([class]) {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -188,30 +188,6 @@ body {
   to   { opacity: 1; transform: scale(1); }
 }
 
-/* ── Viewer preview overlay (hover-to-preview) ── */
-.viewer-preview-overlay {
-  position: absolute;
-  bottom: 24px;
-  left: 24px;
-  width: 240px;
-  height: 160px;
-  background: rgba(15, 5, 0, 0.8);
-  border: 2px solid rgba(184, 133, 48, 0.6);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  pointer-events: none;
-  animation: previewFadeIn 0.15s ease-out;
-  padding: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-.viewer-preview-overlay svg {
-  width: 100%;
-  height: 100%;
-}
-@keyframes previewFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
 /* ── Panel — aged parchment ──────────────────────────── */
 .panel {
@@ -480,87 +456,6 @@ body {
   padding: 0 2px;
 }
 
-/* ── Preview select (custom dropdown with hover thumbnails) ── */
-.preview-select-wrap {
-  position: relative;
-}
-.preview-select-btn {
-  width: 100%;
-  height: 38px;
-  background-image: var(--img-input1);
-  background-position: center;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  border: none;
-  border-radius: 0;
-  font-family: var(--font);
-  font-size: 0.82rem;
-  color: var(--ink);
-  box-shadow: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  text-align: left;
-  padding: 0 34px 0 10px;
-  position: relative;
-  transition: filter 0.15s;
-}
-.preview-select-btn:hover {
-  filter: brightness(1.06);
-}
-.preview-select-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.preview-select-arrows {
-  display: none;
-}
-.preview-select-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  display: flex;
-  gap: 0;
-  margin-top: 4px;
-  background: rgba(235, 220, 190, 0.97);
-  border: 2px solid #3a2000;
-  border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-  overflow: hidden;
-}
-.preview-select-options {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 3px 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-.preview-select-option {
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: var(--ink-mid);
-  font-family: var(--font);
-  font-size: 0.76rem;
-  text-align: left;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.preview-select-option:hover {
-  background: rgba(90, 56, 16, 0.12);
-  color: var(--ink);
-}
-.preview-select-option--active {
-  color: var(--ink);
-  font-weight: bold;
-  background: rgba(90, 56, 16, 0.08);
-}
 
 /* ── Rotation dial (clock) ──────────────────────────── */
 .rotation-dial {

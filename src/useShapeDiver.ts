@@ -389,10 +389,21 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     return viewportRef.current.getScreenshot("image/png", 1) as string;
   }, []);
 
-  const setViewerBackground = useCallback((color: string) => {
+  const setViewerBackground = useCallback((color: string, dark?: boolean) => {
     const vp = viewportRef.current;
     if (!vp) return;
-    try { vp.clearColor = color; } catch {}
+    try {
+      vp.clearColor = color;
+      if (dark) {
+        vp.environmentMapAsBackground = false;
+        vp.groundPlaneVisibility = false;
+        vp.gridVisibility = false;
+      } else {
+        vp.environmentMapAsBackground = true;
+        vp.groundPlaneVisibility = true;
+        vp.gridVisibility = true;
+      }
+    } catch {}
   }, []);
 
   // Camera preset views — use ShapeDiver's built-in orthographic cameras
