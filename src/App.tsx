@@ -337,7 +337,7 @@ export default function App() {
                     </div>
                     <div className="compare-shot-actions">
                       <button className="compare-save-btn" onClick={() => captureConfig({ ...config }, slot)} disabled={!!capturing}>
-                        {isCapturing ? "…" : `Capturer config ${slot} (état actuel)`}
+                        {isCapturing ? "…" : `Capturer config ${slot}`}
                       </button>
                       {cfg && (
                         <button className="compare-load-btn" onClick={() => { setConfig(cfg); applyConfig(cfg); setCompareOpen(false); }}>
