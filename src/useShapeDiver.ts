@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 const TICKET =
-  "4b6a28f6c0b7fbe4e20fcc15efa7cdacab7b55345b344161de5573544c76080e6764973ed0597eb2532874fe980b15b02da8fafd121e4da73352f5bc777609a3cbe94c4df0c3777cbc92b61ab9958ace7a968401504293c257b539d9950f629387c4a71c4227f7-bc249e9fc3248481cc63304d657f2a97";
+  "7a713769379ad427973947f748755851e3087b11d1ea7d74730cceab0ceac6df276b74ad44559390f747b4251db19c09f1097034bae18ac6f152514fbf76472cd9e62ea7504da9472920669bcef69b128d2e85d66be95a9cdff6e0a6ee7603552b37a6bf465be0-231cb4e33187c0f8559ad4a554e3498b";
 
 const MODEL_VIEW_URL =
   "https://sdr8euc1.eu-central-1.shapediver.com";
@@ -26,6 +26,17 @@ export const PARAM_NAMES: Record<string, string> = {
   balusters: "Balustres intermédiaires",
   treadsNoRail: "Marches sans garde-corps",
   distributionPlate: "Plaque de répartition charge",
+  finition: "Finition",
+  wallTop: "Présence de murs autour de la trémie, en haut",
+  wallTopMidi: "À Midi ↑",
+  wallTop3h: "À 3 heure ↑",
+  wallTop6h: "À 6 heure ↑",
+  wallTop9h: "À 9 heure ↑",
+  wallBottom: "Présence de murs autour de la trémie, en bas",
+  wallBottomMidi: "À Midi ↓",
+  wallBottom3h: "À 3 heure ↓",
+  wallBottom6h: "À 6 heure ↓",
+  wallBottom9h: "À 9 heure ↓",
   // Contact fields
   postalAddress: "Adresse postale",
   email: "Adresse mail*",
@@ -54,6 +65,17 @@ export type ConfigState = {
   stairRotation: number;
   treadsNoRail: number;
   distributionPlate: number;
+  finition: number;
+  wallTop: number;
+  wallTopMidi: number;
+  wallTop3h: number;
+  wallTop6h: number;
+  wallTop9h: number;
+  wallBottom: number;
+  wallBottomMidi: number;
+  wallBottom3h: number;
+  wallBottom6h: number;
+  wallBottom9h: number;
 };
 
 export const DEFAULT_CONFIG: ConfigState = {
@@ -71,10 +93,21 @@ export const DEFAULT_CONFIG: ConfigState = {
   endNewel: 0,
   startBall: 0,
   endBall: 0,
-  stairRotation: 7.09,
+  stairRotation: 3,
   balusters: 0,
   treadsNoRail: 0,
   distributionPlate: 0,
+  finition: 0,
+  wallTop: 0,
+  wallTopMidi: 0,
+  wallTop3h: 0,
+  wallTop6h: 0,
+  wallTop9h: 0,
+  wallBottom: 0,
+  wallBottomMidi: 0,
+  wallBottom3h: 0,
+  wallBottom6h: 0,
+  wallBottom9h: 0,
 };
 
 // Choices for StringList parameters, keyed by our config key
@@ -349,6 +382,17 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     link.click();
   }, []);
 
+  const captureScreenshot = useCallback((): string | null => {
+    if (!viewportRef.current) return null;
+    return viewportRef.current.getScreenshot("image/png", 1) as string;
+  }, []);
+
+  const setViewerBackground = useCallback((color: string) => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    try { vp.clearColor = color; } catch {}
+  }, []);
+
   // Camera preset views — use ShapeDiver's built-in orthographic cameras
   type CameraPreset = "perspective" | "top" | "left" | "right" | "front" | "back";
   const orthoCamerasRef = useRef<Record<string, string>>({});
@@ -418,5 +462,5 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     alert("La réalité augmentée n'est pas disponible sur cet appareil. Essayez depuis un smartphone ou une tablette compatible.");
   }, []);
 
-  return { ready, error, paramChoices, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot, setCameraView, startAR };
+  return { ready, error, paramChoices, updateParam, submitContact, zoomIn, zoomOut, resetCamera, toggleFullscreen, getScreenshot, captureScreenshot, setViewerBackground, setCameraView, startAR };
 }

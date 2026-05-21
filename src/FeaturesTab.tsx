@@ -352,7 +352,59 @@ export default function FeaturesTab({ config, onChange, paramChoices, onPreview 
           </Field>
         )}
 
-        {/* ── Sécurité & Options ── */}
+        {/* ── Finition ── */}
+        <Section title="Finition" />
+
+        <Field label="Finition">
+          <DynSel configKey="finition" value={config.finition} onChange={sel("finition")} paramChoices={paramChoices} onPreview={onPreview}
+            fallback={[{ value: 0, label: "Standard" }, { value: 1, label: "Noir graphite" }, { value: 2, label: "Rouille naturelle" }, { value: 3, label: "Patine rouille" }, { value: 4, label: "Brute" }]} />
+        </Field>
+
+        {/* ── Environnement ── */}
+        <Section title="Environnement" />
+
+        {/* Wall card: haut */}
+        <div className="wall-card field--full">
+          <div className="wall-card-header">
+            <label className="field-label">Murs autour trémie (haut)</label>
+            <DynSel configKey="wallTop" value={config.wallTop} onChange={sel("wallTop")} paramChoices={paramChoices} onPreview={onPreview}
+              fallback={[{ value: 0, label: "Non" }, { value: 1, label: "Oui" }]} />
+          </div>
+          {config.wallTop === 1 && (
+            <div className="wall-card-dirs">
+              {(["wallTopMidi","wallTop3h","wallTop6h","wallTop9h"] as const).map((k, i) => (
+                <div key={k} className="wall-dir-item">
+                  <label className="field-label">{["↑ Midi","↑ 3h","↑ 6h","↑ 9h"][i]}</label>
+                  <DynSel configKey={k} value={config[k]} onChange={sel(k)} paramChoices={paramChoices} onPreview={onPreview}
+                    fallback={[{ value: 0, label: "Non" }, { value: 1, label: "Oui" }]} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Wall card: bas */}
+        <div className="wall-card field--full">
+          <div className="wall-card-header">
+            <label className="field-label">Murs autour trémie (bas)</label>
+            <DynSel configKey="wallBottom" value={config.wallBottom} onChange={sel("wallBottom")} paramChoices={paramChoices} onPreview={onPreview}
+              fallback={[{ value: 0, label: "Non" }, { value: 1, label: "Oui" }]} />
+          </div>
+          {config.wallBottom === 1 && (
+            <div className="wall-card-dirs">
+              {(["wallBottomMidi","wallBottom3h","wallBottom6h","wallBottom9h"] as const).map((k, i) => (
+                <div key={k} className="wall-dir-item">
+                  <label className="field-label">{["↓ Midi","↓ 3h","↓ 6h","↓ 9h"][i]}</label>
+                  <DynSel configKey={k} value={config[k]} onChange={sel(k)} paramChoices={paramChoices} onPreview={onPreview}
+                    fallback={[{ value: 0, label: "Non" }, { value: 1, label: "Oui" }]} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+
+{/* ── Sécurité & Options ── */}
         <Section title="Sécurité & Options" />
 
         <Field label="Balustres intermédiaires">
