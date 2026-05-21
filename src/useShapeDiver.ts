@@ -6,7 +6,6 @@ const TICKET =
 const MODEL_VIEW_URL =
   "https://sdr8euc1.eu-central-1.shapediver.com";
 
-// Map of UI field keys -> ShapeDiver parameter names (French)
 export const PARAM_NAMES: Record<string, string> = {
   height: "Hauteur à monter",
   diameter: "Diamètre colimaçon",
