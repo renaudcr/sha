@@ -153,25 +153,19 @@ body {
 }
 @keyframes pulse { 0%,100%{opacity:0.9} 50%{opacity:0.35} }
 
-/* ── Loading skeleton — staircase silhouette ── */
-.skeleton-stair {
-  display: flex; align-items: flex-end; gap: 6px;
+/* ── Loading logo ── */
+.loader-logo {
+  max-width: 500px;
+  width: 85%;
+  height: auto;
   margin-bottom: 20px;
+  animation: logoFadeIn 1.2s ease-out, pulse 1.8s ease-in-out 1.2s infinite;
+  opacity: 0;
+  animation-fill-mode: forwards, none;
 }
-.skeleton-step {
-  border-radius: 3px;
-  background: linear-gradient(90deg, rgba(139,69,19,0.2) 0%, rgba(232,208,144,0.5) 50%, rgba(139,69,19,0.2) 100%);
-  background-size: 400% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
-}
-.skeleton-step--1 { width: 18px; height: 18px; animation-delay: 0s; }
-.skeleton-step--2 { width: 18px; height: 36px; animation-delay: 0.15s; }
-.skeleton-step--3 { width: 18px; height: 54px; animation-delay: 0.3s; }
-.skeleton-step--4 { width: 18px; height: 72px; animation-delay: 0.45s; }
-.skeleton-step--5 { width: 18px; height: 90px; animation-delay: 0.6s; }
-@keyframes shimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
+@keyframes logoFadeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 /* ── Viewer preview overlay (hover-to-preview) ── */

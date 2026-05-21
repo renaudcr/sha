@@ -46,6 +46,7 @@ import envoyerUrl from "./assets/envolyeer.png";
 import primaryBgUrl from "./assets/primary-background.png";
 import nextUrl from "./assets/next.png";
 import previousUrl from "./assets/previous.png";
+import logoUrl from "./assets/logo.png";
 
 type Tab = "features" | "contact";
 const TABS: Tab[] = ["features", "contact"];
@@ -249,13 +250,7 @@ export default function App() {
         )}
         {!ready && !error && (
           <div className="viewer-overlay">
-            <div className="skeleton-stair">
-              <div className="skeleton-step skeleton-step--1" />
-              <div className="skeleton-step skeleton-step--2" />
-              <div className="skeleton-step skeleton-step--3" />
-              <div className="skeleton-step skeleton-step--4" />
-              <div className="skeleton-step skeleton-step--5" />
-            </div>
+            <img src={logoUrl} alt="Renaud Créations" className="loader-logo" />
             <span className="loader-text">Chargement en cours...</span>
           </div>
         )}
