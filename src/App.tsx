@@ -23,6 +23,7 @@ const CONFIG_LABELS: Record<keyof ConfigState, string> = {
   treadsNoRail: "Marches sans garde-corps",
   distributionPlate: "Plaque de répartition",
   finition: "Finition",
+  patineColor: "Patine sur-mesure",
   wallTop: "Murs trémie (haut)",
   wallTopMidi: "↑ Midi",
   wallTop3h: "↑ 3h",
@@ -99,7 +100,7 @@ export default function App() {
   }, [applyConfig, captureScreenshot]);
 
   // Sync param changes to ShapeDiver
-  const handleConfigChange = (key: keyof ConfigState, value: number) => {
+  const handleConfigChange = (key: keyof ConfigState, value: number | string) => {
     const newConfig = { ...config, [key]: value };
     setConfig(newConfig);
     updateParam(key, value);
@@ -157,7 +158,7 @@ export default function App() {
 
   // On ready, push all defaults to the model — skip wall/environment params
   // (those are Bool params with meaningful model defaults we don't want to override)
-  const SKIP_ON_INIT = new Set(["wallTop", "wallTopMidi", "wallTop3h", "wallTop6h", "wallTop9h", "wallBottom", "wallBottomMidi", "wallBottom3h", "wallBottom6h", "wallBottom9h"]);
+  const SKIP_ON_INIT = new Set(["patineColor", "wallTop", "wallTopMidi", "wallTop3h", "wallTop6h", "wallTop9h", "wallBottom", "wallBottomMidi", "wallBottom3h", "wallBottom6h", "wallBottom9h"]);
   useEffect(() => {
     if (!ready) return;
     Object.entries(config).forEach(([key, val]) => {

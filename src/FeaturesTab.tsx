@@ -5,7 +5,7 @@ import PreviewSelect from "./PreviewSelect";
 
 interface Props {
   config: ConfigState;
-  onChange: (key: keyof ConfigState, value: number) => void;
+  onChange: (key: keyof ConfigState, value: number | string) => void;
   paramChoices: ParamChoices;
   onPreview: (node: React.ReactNode) => void;
 }
@@ -359,6 +359,40 @@ export default function FeaturesTab({ config, onChange, paramChoices, onPreview 
           <DynSel configKey="finition" value={config.finition} onChange={sel("finition")} paramChoices={paramChoices} onPreview={onPreview}
             fallback={[{ value: 0, label: "Standard" }, { value: 1, label: "Noir graphite" }, { value: 2, label: "Rouille naturelle" }, { value: 3, label: "Patine rouille" }, { value: 4, label: "Brute" }]} />
         </Field>
+
+        {(() => {
+          // Show color picker when "Patine sur-mesure" is selected
+          const choices = paramChoices["finition"];
+          const patineIdx = choices
+            ? choices.findIndex(c => c.label.toLowerCase().includes("patine sur"))
+            : 4; // fallback: index 4
+          if (config.finition !== patineIdx) return null;
+          // Convert rgba string to hex for the color input
+          const rgbaToHex = (rgba: string) => {
+            const m = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (!m) return "#303030";
+            return "#" + [m[1], m[2], m[3]].map(n => parseInt(n).toString(16).padStart(2, "0")).join("");
+          };
+          const hexToRgba = (hex: string) => {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r},${g},${b},1)`;
+          };
+          return (
+            <Field label="Patine sur-mesure">
+              <div className="color-pick-wrap">
+                <input
+                  type="color"
+                  className="color-pick-input"
+                  value={rgbaToHex(config.patineColor)}
+                  onChange={e => onChange("patineColor", hexToRgba(e.target.value))}
+                />
+                <span className="color-pick-value">{config.patineColor}</span>
+              </div>
+            </Field>
+          );
+        })()}
 
         {/* ── Environnement ── */}
         <Section title="Environnement" />

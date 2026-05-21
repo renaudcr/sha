@@ -26,6 +26,7 @@ export const PARAM_NAMES: Record<string, string> = {
   treadsNoRail: "Marches sans garde-corps",
   distributionPlate: "Plaque de répartition charge",
   finition: "Finition",
+  patineColor: "Sélection mannuelle de la patine",
   wallTop: "Présence de murs autour de la trémie, en haut",
   wallTopMidi: "À Midi ↑",
   wallTop3h: "À 3 heure ↑",
@@ -65,6 +66,7 @@ export type ConfigState = {
   treadsNoRail: number;
   distributionPlate: number;
   finition: number;
+  patineColor: string;
   wallTop: number;
   wallTopMidi: number;
   wallTop3h: number;
@@ -97,6 +99,7 @@ export const DEFAULT_CONFIG: ConfigState = {
   treadsNoRail: 0,
   distributionPlate: 0,
   finition: 0,
+  patineColor: "rgba(48,48,48,1)",
   wallTop: 0,
   wallTopMidi: 0,
   wallTop3h: 0,
@@ -255,7 +258,7 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
     const ptype = (param.type ?? "").toLowerCase();
     if (ptype === "bool" || ptype === "boolean") {
       coerced = Boolean(value);
-    } else if (ptype === "stringlist" || ptype === "string") {
+    } else if (ptype === "stringlist" || ptype === "string" || ptype === "color") {
       coerced = String(value);
     } else {
       // Int / Float — keep as number

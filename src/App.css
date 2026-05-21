@@ -648,6 +648,29 @@ body {
   box-shadow: none;
 }
 
+/* ── Color picker ───────────────────────────────────── */
+.color-pick-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+}
+.color-pick-input {
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  background: var(--input-bg);
+  flex-shrink: 0;
+}
+.color-pick-value {
+  font-family: var(--font);
+  font-size: 0.78rem;
+  color: var(--ink-mid);
+}
+
 /* ── Warning ────────────────────────────────────────── */
 /* ── Wall card ──────────────────────────────────────── */
 .wall-card {
