@@ -53,7 +53,7 @@ body {
   position: relative;
   background: #1a0a00;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 .viewer-canvas {
   width: 100%;
