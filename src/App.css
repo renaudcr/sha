@@ -115,7 +115,7 @@ body {
 .toolbar-dropdown {
   position: absolute;
   bottom: calc(100% + 8px);
-  right: 0;
+  left: 0;
   min-width: 210px;
   background: rgba(235, 220, 190, 0.97);
   backdrop-filter: blur(8px);
