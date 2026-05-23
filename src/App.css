@@ -138,7 +138,7 @@ body {
   cursor: pointer;
   border-radius: 0;
   display: block;
-  transition: background 0.12s;
+  transition: background 0.13s;
 }
 .toolbar-dropdown button:hover {
   background: rgba(90, 56, 16, 0.1) !important;
