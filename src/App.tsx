@@ -200,11 +200,11 @@ export default function App() {
               {cameraMenuOpen && (
                 <div className="toolbar-dropdown">
                   <button onClick={() => { setCameraView("perspective"); setCameraMenuOpen(false); }}>Perspective</button>
-                  <button onClick={() => { setCameraView("top"); setCameraMenuOpen(false); }}>Top (Plan)</button>
-                  <button onClick={() => { setCameraView("left"); setCameraMenuOpen(false); }}>Left</button>
-                  <button onClick={() => { setCameraView("right"); setCameraMenuOpen(false); }}>Right</button>
-                  <button onClick={() => { setCameraView("front"); setCameraMenuOpen(false); }}>Front</button>
-                  <button onClick={() => { setCameraView("back"); setCameraMenuOpen(false); }}>Back</button>
+                  <button onClick={() => { setCameraView("top"); setCameraMenuOpen(false); }}>Vue de dessus</button>
+                  <button onClick={() => { setCameraView("left"); setCameraMenuOpen(false); }}>Vue de gauche</button>
+                  <button onClick={() => { setCameraView("right"); setCameraMenuOpen(false); }}>Vue de droite</button>
+                  <button onClick={() => { setCameraView("front"); setCameraMenuOpen(false); }}>Face</button>
+                  <button onClick={() => { setCameraView("back"); setCameraMenuOpen(false); }}>Arrière</button>
                 </div>
               )}
             </div>
