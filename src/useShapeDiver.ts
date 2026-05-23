@@ -364,14 +364,11 @@ export function useShapeDiver(canvasRef: React.RefObject<HTMLCanvasElement | nul
   }, []);
 
   const toggleFullscreen = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const wrapper = canvas.parentElement;
-    if (!wrapper) return;
     if (document.fullscreenElement) {
       document.exitFullscreen();
     } else {
-      wrapper.requestFullscreen();
+      const app = document.querySelector(".app") as HTMLElement;
+      (app ?? document.documentElement).requestFullscreen();
     }
   }, []);
 

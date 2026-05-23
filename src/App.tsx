@@ -54,7 +54,13 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { ready, error, paramChoices, updateParam, submitContact, zoomIn, resetCamera, toggleFullscreen, getScreenshot, captureScreenshot, setViewerBackground, setCameraView, startAR } = useShapeDiver(canvasRef);
   const [tab, setTab] = useState<Tab>("features");
-  const [config, setConfig] = useState<ConfigState>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<ConfigState>(() => {
+    try {
+      const saved = localStorage.getItem("staircaseConfig");
+      if (saved) return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
+    } catch {}
+    return DEFAULT_CONFIG;
+  });
   const [cameraMenuOpen, setCameraMenuOpen] = useState(false);
   const cameraMenuRef = useRef<HTMLDivElement>(null);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "1");
@@ -63,6 +69,10 @@ export default function App() {
     localStorage.setItem("darkMode", darkMode ? "1" : "0");
     setViewerBackground(darkMode ? "#1a0a00" : "#f5f0e0", darkMode);
   }, [darkMode, ready, setViewerBackground]);
+
+  useEffect(() => {
+    localStorage.setItem("staircaseConfig", JSON.stringify(config));
+  }, [config]);
 
   // Comparison view
   const [configA, setConfigA] = useState<ConfigState | null>(null);
