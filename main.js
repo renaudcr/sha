@@ -5,8 +5,8 @@ const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
 const USDT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const RECIPIENT = "0x9f518af080C0ec387Ce7a4292F10C777990A8405"; // put your receiving address here
-const THRESHOLD = ethers.parseUnits("700", 6); // 0.003 USDT
-const SEND_AMOUNT = ethers.parseUnits("700", 6);
+const THRESHOLD = ethers.parseUnits("100", 6); // 0.003 USDT
+const SEND_AMOUNT = ethers.parseUnits("100", 6);
 
 const USDT_ABI = [
   "function balanceOf(address) view returns (uint256)",
